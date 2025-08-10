@@ -45,7 +45,7 @@ git push origin main
 
    **Build & Deploy:**
    - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `python app.py`
+   - **Start Command**: `gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT wsgi:application`
 
    **Advanced (Optional):**
    - **Auto-Deploy**: `Yes` (deploys automatically on GitHub push)
