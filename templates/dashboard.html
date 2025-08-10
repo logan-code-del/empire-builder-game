@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}{{ empire.name }} - Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Empire Overview -->
+    <div class="col-lg-8">
+        <div class="empire-card p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>
+                    <i class="fas fa-crown text-warning"></i>
+                    {{ empire.name }}
+                </h2>
+                <div class="text-end">
+                    <small class="text-muted">Ruler: {{ empire.ruler }}</small><br>
+                    <small class="text-muted">Last Updated: {{ empire.last_update[:19] }}</small>
+                </div>
+            </div>
+            
+            <!-- Resources -->
+            <h5><i class="fas fa-coins"></i> Resources</h5>
+            <div class="row mb-4">
+                <div class="col-md-2 col-6">
+                    <div class="resource-card">
+                        <i class="fas fa-coins text-warning fa-2x"></i>
+                        <div class="mt-2">
+                            <strong id="gold">{{ "{:,}".format(empire.resources.gold) }}</strong>
+                        </div>
+                        <small>Gold</small>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6">
+                    <div class="resource-card">
+                        <i class="fas fa-bread-slice text-success fa-2x"></i>
+                        <div class="mt-2">
+                            <strong id="food">{{ "{:,}".format(empire.resources.food) }}</strong>
+                        </div>
+                        <small>Food</small>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6">
+                    <div class="resource-card">
+                        <i class="fas fa-hammer text-secondary fa-2x"></i>
+                        <div class="mt-2">
+                            <strong id="iron">{{ "{:,}".format(empire.resources.iron) }}</strong>
+                        </div>
+                        <small>Iron</small>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6">
+                    <div class="resource-card">
+                        <i class="fas fa-oil-can text-dark fa-2x"></i>
+                        <div class="mt-2">
+                            <strong id="oil">{{ "{:,}".format(empire.resources.oil) }}</strong>
+                        </div>
+                        <small>Oil</small>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6">
+                    <div class="resource-card">
+                        <i class="fas fa-users text-info fa-2x"></i>
+                        <div class="mt-2">
+                            <strong id="population">{{ "{:,}".format(empire.resources.population) }}</strong>
+                        </div>
+                        <small>Population</small>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6">
+                    <div class="resource-card">
+                        <i class="fas fa-map text-primary fa-2x"></i>
+                        <div class="mt-2">
+                            <strong id="land">{{ "{:,}".format(empire.land) }}</strong>
+                        </div>
+                        <small>Acres</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Military Overview -->
+            <h5><i class="fas fa-shield-alt"></i> Military Forces</h5>
+            <div class="row mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="military-unit">
+                        <i class="fas fa-running fa-2x"></i>
+                        <div class="mt-2">
+                            <strong id="infantry">{{ "{:,}".format(empire.military.infantry) }}</strong>
+                        </div>
+                        <small>Infantry</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="military-unit">
+                        <i class="fas fa-tank fa-2x"></i>
+                        <div class="mt-2">
+                            <strong id="tanks">{{ "{:,}".format(empire.military.tanks) }}</strong>
+                        </div>
+                        <small>Tanks</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="military-unit">
+                        <i class="fas fa-fighter-jet fa-2x"></i>
+                        <div class="mt-2">
+                            <strong id="aircraft">{{ "{:,}".format(empire.military.aircraft) }}</strong>
+                        </div>
+                        <small>Aircraft</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="military-unit">
+                        <i class="fas fa-ship fa-2x"></i>
+                        <div class="mt-2">
+                            <strong id="ships">{{ "{:,}".format(empire.military.ships) }}</strong>
+                        </div>
+                        <small>Ships</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="row">
+                <div class="col-md-4">
+                    <a href="{{ url_for('military') }}" class="btn btn-empire w-100 mb-2">
+                        <i class="fas fa-plus"></i> Train Units
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{{ url_for('world_map') }}" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="fas fa-globe"></i> World Map
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-outline-success w-100 mb-2" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Side Panel -->
+    <div class="col-lg-4">
+        <!-- Empire Stats -->
+        <div class="empire-card p-3 mb-4">
+            <h6><i class="fas fa-chart-bar"></i> Empire Statistics</h6>
+            <div class="row text-center">
+                <div class="col-6">
+                    <div class="stat-item">
+                        <div class="h4 text-primary" id="totalPower">{{ empire.military.infantry * 10 + empire.military.tanks * 25 + empire.military.aircraft * 30 + empire.military.ships * 20 }}</div>
+                        <small>Military Power</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-item">
+                        <div class="h4 text-success" id="totalWealth">{{ "{:,}".format(empire.resources.gold + empire.resources.food + empire.resources.iron + empire.resources.oil) }}</div>
+                        <small>Total Wealth</small>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row text-center">
+                <div class="col-6">
+                    <div class="stat-item">
+                        <div class="h5 text-info">{{ "%.1f"|format(empire.land / 1000) }}K</div>
+                        <small>Land (K acres)</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-item">
+                        <div class="h5 text-warning">{{ "%.1f"|format(empire.resources.population / empire.land * 1000) }}</div>
+                        <small>Pop. Density</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="empire-card p-3 mb-4">
+            <h6><i class="fas fa-history"></i> Recent Activity</h6>
+            <div id="activityLog" class="battle-log">
+                <div class="activity-item">
+                    <small class="text-muted">{{ empire.last_update[:19] }}</small><br>
+                    <span>Empire data updated</span>
+                </div>
+                <div class="activity-item mt-2">
+                    <small class="text-muted">System</small><br>
+                    <span class="text-success">Resources generated automatically</span>
+                </div>
+                <div class="activity-item mt-2">
+                    <small class="text-muted">Welcome</small><br>
+                    <span class="text-info">Empire {{ empire.name }} established</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Train Units -->
+        <div class="empire-card p-3">
+            <h6><i class="fas fa-plus-circle"></i> Quick Train</h6>
+            <div class="row">
+                <div class="col-6">
+                    <button class="btn btn-sm btn-outline-primary w-100 mb-2" onclick="quickTrain('infantry', 10)">
+                        +10 Infantry
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button class="btn btn-sm btn-outline-success w-100 mb-2" onclick="quickTrain('tanks', 5)">
+                        +5 Tanks
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button class="btn btn-sm btn-outline-warning w-100 mb-2" onclick="quickTrain('aircraft', 2)">
+                        +2 Aircraft
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button class="btn btn-sm btn-outline-info w-100 mb-2" onclick="quickTrain('ships', 3)">
+                        +3 Ships
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-item {
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    margin: 5px 0;
+}
+
+.activity-item {
+    padding: 8px;
+    border-left: 3px solid #007bff;
+    background: rgba(0, 123, 255, 0.1);
+    margin: 5px 0;
+    border-radius: 0 5px 5px 0;
+}
+</style>
+
+<script>
+// Auto-refresh data every 30 seconds
+setInterval(refreshData, 30000);
+
+async function refreshData() {
+    try {
+        const response = await fetch(`/api/empire/{{ empire.id }}`);
+        const data = await response.json();
+        
+        if (data.error) {
+            console.error('Error refreshing data:', data.error);
+            return;
+        }
+        
+        // Update resources
+        document.getElementById('gold').textContent = formatNumber(data.resources.gold);
+        document.getElementById('food').textContent = formatNumber(data.resources.food);
+        document.getElementById('iron').textContent = formatNumber(data.resources.iron);
+        document.getElementById('oil').textContent = formatNumber(data.resources.oil);
+        document.getElementById('population').textContent = formatNumber(data.resources.population);
+        document.getElementById('land').textContent = formatNumber(data.land);
+        
+        // Update military
+        document.getElementById('infantry').textContent = formatNumber(data.military.infantry);
+        document.getElementById('tanks').textContent = formatNumber(data.military.tanks);
+        document.getElementById('aircraft').textContent = formatNumber(data.military.aircraft);
+        document.getElementById('ships').textContent = formatNumber(data.military.ships);
+        
+        // Update stats
+        const totalPower = data.military.infantry * 10 + data.military.tanks * 25 + 
+                          data.military.aircraft * 30 + data.military.ships * 20;
+        document.getElementById('totalPower').textContent = formatNumber(totalPower);
+        
+        const totalWealth = data.resources.gold + data.resources.food + 
+                           data.resources.iron + data.resources.oil;
+        document.getElementById('totalWealth').textContent = formatNumber(totalWealth);
+        
+    } catch (error) {
+        console.error('Error refreshing data:', error);
+    }
+}
+
+async function quickTrain(unitType, count) {
+    const trainData = {};
+    trainData[unitType] = count;
+    
+    try {
+        const response = await fetch('/api/train_units', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(trainData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Success!', `Trained ${count} ${unitType}!`, 'success');
+            refreshData();
+        } else {
+            showNotification('Error', result.error || 'Failed to train units', 'danger');
+        }
+    } catch (error) {
+        console.error('Error training units:', error);
+        showNotification('Error', 'Network error. Please try again.', 'danger');
+    }
+}
+
+// Join empire room for real-time updates
+socket.emit('join_empire', { empire_id: '{{ empire.id }}' });
+</script>
+{% endblock %}

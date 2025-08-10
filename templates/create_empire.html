@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Create Your Empire - Empire Builder{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="empire-card p-4">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-crown text-warning"></i>
+                Create Your Empire
+            </h2>
+            
+            <form id="empireForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="empireName" class="form-label">
+                                <i class="fas fa-flag"></i> Empire Name
+                            </label>
+                            <input type="text" class="form-control" id="empireName" 
+                                   placeholder="Enter your empire's name" required>
+                            <div class="form-text">Choose a unique name for your empire</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="rulerName" class="form-label">
+                                <i class="fas fa-user-crown"></i> Ruler Name
+                            </label>
+                            <input type="text" class="form-control" id="rulerName" 
+                                   placeholder="Enter your ruler's name" required>
+                            <div class="form-text">Your character's name as the empire's leader</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-map-marker-alt"></i> Starting Location
+                            </label>
+                            <div class="form-text mb-2">
+                                Click on the map to choose your empire's starting location
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="number" class="form-control" id="latitude" 
+                                           placeholder="Latitude" step="0.000001" readonly>
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" class="form-control" id="longitude" 
+                                           placeholder="Longitude" step="0.000001" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6><i class="fas fa-gift"></i> Starting Resources</h6>
+                            <div class="row text-center">
+                                <div class="col-6 col-md-3">
+                                    <div class="resource-card">
+                                        <i class="fas fa-coins text-warning"></i>
+                                        <div><strong>10,000</strong></div>
+                                        <small>Gold</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="resource-card">
+                                        <i class="fas fa-bread-slice text-success"></i>
+                                        <div><strong>5,000</strong></div>
+                                        <small>Food</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="resource-card">
+                                        <i class="fas fa-hammer text-secondary"></i>
+                                        <div><strong>2,000</strong></div>
+                                        <small>Iron</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="resource-card">
+                                        <i class="fas fa-oil-can text-dark"></i>
+                                        <div><strong>1,000</strong></div>
+                                        <small>Oil</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row text-center mt-2">
+                                <div class="col-6">
+                                    <div class="resource-card">
+                                        <i class="fas fa-users text-info"></i>
+                                        <div><strong>1,000</strong></div>
+                                        <small>Population</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="resource-card">
+                                        <i class="fas fa-map text-primary"></i>
+                                        <div><strong>2,000</strong></div>
+                                        <small>Acres</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-globe"></i> World Map
+                            </label>
+                            <div id="map" class="world-map"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-empire btn-lg" id="createBtn" disabled>
+                        <i class="fas fa-plus"></i> Create Empire
+                    </button>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg ms-3">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let map;
+let selectedLocation = null;
+
+// Initialize map
+document.addEventListener('DOMContentLoaded', function() {
+    map = L.map('map').setView([20, 0], 2);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    // Add click handler
+    map.on('click', function(e) {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        
+        // Remove previous marker
+        if (selectedLocation) {
+            map.removeLayer(selectedLocation);
+        }
+        
+        // Add new marker
+        selectedLocation = L.marker([lat, lng]).addTo(map);
+        selectedLocation.bindPopup(`Empire Location<br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`).openPopup();
+        
+        // Update form fields
+        document.getElementById('latitude').value = lat.toFixed(6);
+        document.getElementById('longitude').value = lng.toFixed(6);
+        
+        // Enable create button
+        checkFormValid();
+    });
+});
+
+function checkFormValid() {
+    const empireName = document.getElementById('empireName').value;
+    const rulerName = document.getElementById('rulerName').value;
+    const lat = document.getElementById('latitude').value;
+    const lng = document.getElementById('longitude').value;
+    
+    const isValid = empireName && rulerName && lat && lng;
+    document.getElementById('createBtn').disabled = !isValid;
+}
+
+// Add event listeners for form validation
+document.getElementById('empireName').addEventListener('input', checkFormValid);
+document.getElementById('rulerName').addEventListener('input', checkFormValid);
+
+// Handle form submission
+document.getElementById('empireForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        name: document.getElementById('empireName').value,
+        ruler: document.getElementById('rulerName').value,
+        lat: parseFloat(document.getElementById('latitude').value),
+        lng: parseFloat(document.getElementById('longitude').value)
+    };
+    
+    try {
+        const response = await fetch('/create_empire', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Success!', 'Your empire has been created successfully!', 'success');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1500);
+        } else {
+            showNotification('Error', 'Failed to create empire. Please try again.', 'danger');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Error', 'Network error. Please try again.', 'danger');
+    }
+});
+
+// Add some example locations
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        // Add example location buttons
+        const exampleLocations = [
+            { name: 'North America', lat: 39.8283, lng: -98.5795 },
+            { name: 'Europe', lat: 54.5260, lng: 15.2551 },
+            { name: 'Asia', lat: 34.0479, lng: 100.6197 },
+            { name: 'Africa', lat: -8.7832, lng: 34.5085 },
+            { name: 'South America', lat: -8.7832, lng: -55.4915 },
+            { name: 'Australia', lat: -25.2744, lng: 133.7751 }
+        ];
+        
+        const mapContainer = document.getElementById('map').parentNode;
+        const exampleDiv = document.createElement('div');
+        exampleDiv.className = 'mt-2';
+        exampleDiv.innerHTML = '<small class="text-muted">Quick locations:</small><br>';
+        
+        exampleLocations.forEach(loc => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-sm btn-outline-secondary me-1 mb-1';
+            btn.textContent = loc.name;
+            btn.onclick = () => {
+                map.setView([loc.lat, loc.lng], 4);
+            };
+            exampleDiv.appendChild(btn);
+        });
+        
+        mapContainer.appendChild(exampleDiv);
+    }, 1000);
+});
+</script>
+{% endblock %}

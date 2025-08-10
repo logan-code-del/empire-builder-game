@@ -1,0 +1,472 @@
+{% extends "base.html" %}
+
+{% block title %}Military - {{ empire.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="empire-card p-4">
+            <h3><i class="fas fa-shield-alt"></i> Military Command Center</h3>
+            <p class="text-muted">Train and manage your military forces</p>
+            
+            <!-- Current Forces -->
+            <h5 class="mt-4"><i class="fas fa-users"></i> Current Forces</h5>
+            <div class="row mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="military-unit">
+                        <i class="fas fa-running fa-3x"></i>
+                        <div class="mt-2">
+                            <strong>{{ "{:,}".format(empire.military.infantry) }}</strong>
+                        </div>
+                        <small>Infantry</small>
+                        <div class="mt-1">
+                            <small class="text-light">ATK: 10 | DEF: 15 | SPD: 5</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="military-unit">
+                        <i class="fas fa-tank fa-3x"></i>
+                        <div class="mt-2">
+                            <strong>{{ "{:,}".format(empire.military.tanks) }}</strong>
+                        </div>
+                        <small>Tanks</small>
+                        <div class="mt-1">
+                            <small class="text-light">ATK: 25 | DEF: 20 | SPD: 8</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="military-unit">
+                        <i class="fas fa-fighter-jet fa-3x"></i>
+                        <div class="mt-2">
+                            <strong>{{ "{:,}".format(empire.military.aircraft) }}</strong>
+                        </div>
+                        <small>Aircraft</small>
+                        <div class="mt-1">
+                            <small class="text-light">ATK: 30 | DEF: 10 | SPD: 15</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="military-unit">
+                        <i class="fas fa-ship fa-3x"></i>
+                        <div class="mt-2">
+                            <strong>{{ "{:,}".format(empire.military.ships) }}</strong>
+                        </div>
+                        <small>Ships</small>
+                        <div class="mt-1">
+                            <small class="text-light">ATK: 20 | DEF: 25 | SPD: 6</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Training Center -->
+            <h5><i class="fas fa-plus-circle"></i> Training Center</h5>
+            <form id="trainingForm">
+                <div class="row">
+                    <div class="col-md-3 col-6">
+                        <div class="training-card p-3 mb-3">
+                            <div class="text-center">
+                                <i class="fas fa-running fa-2x text-primary"></i>
+                                <h6 class="mt-2">Infantry</h6>
+                                <div class="cost-info mb-2">
+                                    <small>
+                                        <i class="fas fa-coins"></i> {{ unit_costs.infantry.gold }}
+                                        <i class="fas fa-hammer"></i> {{ unit_costs.infantry.iron }}
+                                        <i class="fas fa-bread-slice"></i> {{ unit_costs.infantry.food }}
+                                    </small>
+                                </div>
+                                <input type="number" class="form-control form-control-sm" 
+                                       id="trainInfantry" min="0" value="0" 
+                                       onchange="updateTrainingCost()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="training-card p-3 mb-3">
+                            <div class="text-center">
+                                <i class="fas fa-tank fa-2x text-success"></i>
+                                <h6 class="mt-2">Tanks</h6>
+                                <div class="cost-info mb-2">
+                                    <small>
+                                        <i class="fas fa-coins"></i> {{ unit_costs.tanks.gold }}
+                                        <i class="fas fa-hammer"></i> {{ unit_costs.tanks.iron }}
+                                        <i class="fas fa-oil-can"></i> {{ unit_costs.tanks.oil }}
+                                    </small>
+                                </div>
+                                <input type="number" class="form-control form-control-sm" 
+                                       id="trainTanks" min="0" value="0" 
+                                       onchange="updateTrainingCost()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="training-card p-3 mb-3">
+                            <div class="text-center">
+                                <i class="fas fa-fighter-jet fa-2x text-warning"></i>
+                                <h6 class="mt-2">Aircraft</h6>
+                                <div class="cost-info mb-2">
+                                    <small>
+                                        <i class="fas fa-coins"></i> {{ unit_costs.aircraft.gold }}
+                                        <i class="fas fa-hammer"></i> {{ unit_costs.aircraft.iron }}
+                                        <i class="fas fa-oil-can"></i> {{ unit_costs.aircraft.oil }}
+                                    </small>
+                                </div>
+                                <input type="number" class="form-control form-control-sm" 
+                                       id="trainAircraft" min="0" value="0" 
+                                       onchange="updateTrainingCost()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="training-card p-3 mb-3">
+                            <div class="text-center">
+                                <i class="fas fa-ship fa-2x text-info"></i>
+                                <h6 class="mt-2">Ships</h6>
+                                <div class="cost-info mb-2">
+                                    <small>
+                                        <i class="fas fa-coins"></i> {{ unit_costs.ships.gold }}
+                                        <i class="fas fa-hammer"></i> {{ unit_costs.ships.iron }}
+                                        <i class="fas fa-oil-can"></i> {{ unit_costs.ships.oil }}
+                                    </small>
+                                </div>
+                                <input type="number" class="form-control form-control-sm" 
+                                       id="trainShips" min="0" value="0" 
+                                       onchange="updateTrainingCost()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-empire btn-lg" id="trainBtn" disabled>
+                        <i class="fas fa-plus"></i> Train Units
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg ms-3" onclick="clearTraining()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Resources -->
+        <div class="empire-card p-3 mb-3">
+            <h6><i class="fas fa-coins"></i> Available Resources</h6>
+            <div class="row text-center">
+                <div class="col-6">
+                    <div class="resource-card">
+                        <i class="fas fa-coins text-warning"></i>
+                        <div><strong id="currentGold">{{ "{:,}".format(empire.resources.gold) }}</strong></div>
+                        <small>Gold</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="resource-card">
+                        <i class="fas fa-bread-slice text-success"></i>
+                        <div><strong id="currentFood">{{ "{:,}".format(empire.resources.food) }}</strong></div>
+                        <small>Food</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="resource-card">
+                        <i class="fas fa-hammer text-secondary"></i>
+                        <div><strong id="currentIron">{{ "{:,}".format(empire.resources.iron) }}</strong></div>
+                        <small>Iron</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="resource-card">
+                        <i class="fas fa-oil-can text-dark"></i>
+                        <div><strong id="currentOil">{{ "{:,}".format(empire.resources.oil) }}</strong></div>
+                        <small>Oil</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Training Cost -->
+        <div class="empire-card p-3 mb-3">
+            <h6><i class="fas fa-calculator"></i> Training Cost</h6>
+            <div id="trainingCost">
+                <div class="text-center text-muted">
+                    <small>Select units to see cost</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Military Stats -->
+        <div class="empire-card p-3 mb-3">
+            <h6><i class="fas fa-chart-bar"></i> Military Statistics</h6>
+            <div class="stat-row">
+                <span>Total Units:</span>
+                <strong id="totalUnits">{{ empire.military.infantry + empire.military.tanks + empire.military.aircraft + empire.military.ships }}</strong>
+            </div>
+            <div class="stat-row">
+                <span>Attack Power:</span>
+                <strong id="attackPower">{{ empire.military.infantry * unit_stats.infantry.attack + empire.military.tanks * unit_stats.tanks.attack + empire.military.aircraft * unit_stats.aircraft.attack + empire.military.ships * unit_stats.ships.attack }}</strong>
+            </div>
+            <div class="stat-row">
+                <span>Defense Power:</span>
+                <strong id="defensePower">{{ empire.military.infantry * unit_stats.infantry.defense + empire.military.tanks * unit_stats.tanks.defense + empire.military.aircraft * unit_stats.aircraft.defense + empire.military.ships * unit_stats.ships.defense }}</strong>
+            </div>
+            <div class="stat-row">
+                <span>Avg. Speed:</span>
+                <strong id="avgSpeed">{{ "%.1f"|format((empire.military.infantry * unit_stats.infantry.speed + empire.military.tanks * unit_stats.tanks.speed + empire.military.aircraft * unit_stats.aircraft.speed + empire.military.ships * unit_stats.ships.speed) / (empire.military.infantry + empire.military.tanks + empire.military.aircraft + empire.military.ships) if (empire.military.infantry + empire.military.tanks + empire.military.aircraft + empire.military.ships) > 0 else 0) }}</strong>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="empire-card p-3">
+            <h6><i class="fas fa-bolt"></i> Quick Actions</h6>
+            <div class="d-grid gap-2">
+                <button class="btn btn-outline-primary" onclick="setQuickTrain('balanced')">
+                    <i class="fas fa-balance-scale"></i> Balanced Force
+                </button>
+                <button class="btn btn-outline-success" onclick="setQuickTrain('ground')">
+                    <i class="fas fa-tank"></i> Ground Force
+                </button>
+                <button class="btn btn-outline-warning" onclick="setQuickTrain('air')">
+                    <i class="fas fa-fighter-jet"></i> Air Force
+                </button>
+                <button class="btn btn-outline-info" onclick="setQuickTrain('naval')">
+                    <i class="fas fa-ship"></i> Naval Force
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.training-card {
+    background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+.training-card:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+}
+
+.cost-info {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+}
+</style>
+
+<script>
+const unitCosts = {{ unit_costs | tojson }};
+const unitStats = {{ unit_stats | tojson }};
+const currentResources = {{ empire.resources | tojson }};
+const currentMilitary = {{ empire.military | tojson }};
+
+function updateTrainingCost() {
+    const infantry = parseInt(document.getElementById('trainInfantry').value) || 0;
+    const tanks = parseInt(document.getElementById('trainTanks').value) || 0;
+    const aircraft = parseInt(document.getElementById('trainAircraft').value) || 0;
+    const ships = parseInt(document.getElementById('trainShips').value) || 0;
+    
+    const totalCost = {
+        gold: infantry * unitCosts.infantry.gold + tanks * unitCosts.tanks.gold + 
+              aircraft * unitCosts.aircraft.gold + ships * unitCosts.ships.gold,
+        iron: infantry * unitCosts.infantry.iron + tanks * unitCosts.tanks.iron + 
+              aircraft * unitCosts.aircraft.iron + ships * unitCosts.ships.iron,
+        oil: tanks * unitCosts.tanks.oil + aircraft * unitCosts.aircraft.oil + 
+             ships * unitCosts.ships.oil,
+        food: infantry * unitCosts.infantry.food
+    };
+    
+    const totalUnits = infantry + tanks + aircraft + ships;
+    
+    if (totalUnits === 0) {
+        document.getElementById('trainingCost').innerHTML = `
+            <div class="text-center text-muted">
+                <small>Select units to see cost</small>
+            </div>
+        `;
+        document.getElementById('trainBtn').disabled = true;
+        return;
+    }
+    
+    // Check affordability
+    const canAfford = {
+        gold: currentResources.gold >= totalCost.gold,
+        iron: currentResources.iron >= totalCost.iron,
+        oil: currentResources.oil >= totalCost.oil,
+        food: currentResources.food >= totalCost.food
+    };
+    
+    const allAffordable = Object.values(canAfford).every(x => x);
+    
+    document.getElementById('trainingCost').innerHTML = `
+        <div class="row text-center">
+            <div class="col-6">
+                <div class="cost-item ${canAfford.gold ? '' : 'text-danger'}">
+                    <i class="fas fa-coins"></i>
+                    <div><strong>${formatNumber(totalCost.gold)}</strong></div>
+                    <small>Gold</small>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="cost-item ${canAfford.iron ? '' : 'text-danger'}">
+                    <i class="fas fa-hammer"></i>
+                    <div><strong>${formatNumber(totalCost.iron)}</strong></div>
+                    <small>Iron</small>
+                </div>
+            </div>
+            ${totalCost.oil > 0 ? `
+            <div class="col-6">
+                <div class="cost-item ${canAfford.oil ? '' : 'text-danger'}">
+                    <i class="fas fa-oil-can"></i>
+                    <div><strong>${formatNumber(totalCost.oil)}</strong></div>
+                    <small>Oil</small>
+                </div>
+            </div>
+            ` : ''}
+            ${totalCost.food > 0 ? `
+            <div class="col-6">
+                <div class="cost-item ${canAfford.food ? '' : 'text-danger'}">
+                    <i class="fas fa-bread-slice"></i>
+                    <div><strong>${formatNumber(totalCost.food)}</strong></div>
+                    <small>Food</small>
+                </div>
+            </div>
+            ` : ''}
+        </div>
+        <hr>
+        <div class="text-center">
+            <strong>Total Units: ${formatNumber(totalUnits)}</strong>
+        </div>
+    `;
+    
+    document.getElementById('trainBtn').disabled = !allAffordable;
+}
+
+function clearTraining() {
+    document.getElementById('trainInfantry').value = 0;
+    document.getElementById('trainTanks').value = 0;
+    document.getElementById('trainAircraft').value = 0;
+    document.getElementById('trainShips').value = 0;
+    updateTrainingCost();
+}
+
+function setQuickTrain(type) {
+    clearTraining();
+    
+    const maxAffordable = {
+        infantry: Math.floor(Math.min(currentResources.gold / unitCosts.infantry.gold, 
+                                    currentResources.iron / unitCosts.infantry.iron,
+                                    currentResources.food / unitCosts.infantry.food)),
+        tanks: Math.floor(Math.min(currentResources.gold / unitCosts.tanks.gold,
+                                 currentResources.iron / unitCosts.tanks.iron,
+                                 currentResources.oil / unitCosts.tanks.oil)),
+        aircraft: Math.floor(Math.min(currentResources.gold / unitCosts.aircraft.gold,
+                                    currentResources.iron / unitCosts.aircraft.iron,
+                                    currentResources.oil / unitCosts.aircraft.oil)),
+        ships: Math.floor(Math.min(currentResources.gold / unitCosts.ships.gold,
+                                 currentResources.iron / unitCosts.ships.iron,
+                                 currentResources.oil / unitCosts.ships.oil))
+    };
+    
+    switch(type) {
+        case 'balanced':
+            document.getElementById('trainInfantry').value = Math.floor(maxAffordable.infantry * 0.4);
+            document.getElementById('trainTanks').value = Math.floor(maxAffordable.tanks * 0.3);
+            document.getElementById('trainAircraft').value = Math.floor(maxAffordable.aircraft * 0.2);
+            document.getElementById('trainShips').value = Math.floor(maxAffordable.ships * 0.1);
+            break;
+        case 'ground':
+            document.getElementById('trainInfantry').value = Math.floor(maxAffordable.infantry * 0.6);
+            document.getElementById('trainTanks').value = Math.floor(maxAffordable.tanks * 0.4);
+            break;
+        case 'air':
+            document.getElementById('trainAircraft').value = Math.floor(maxAffordable.aircraft * 0.8);
+            break;
+        case 'naval':
+            document.getElementById('trainShips').value = Math.floor(maxAffordable.ships * 0.8);
+            break;
+    }
+    
+    updateTrainingCost();
+}
+
+// Handle form submission
+document.getElementById('trainingForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const trainingData = {
+        infantry: parseInt(document.getElementById('trainInfantry').value) || 0,
+        tanks: parseInt(document.getElementById('trainTanks').value) || 0,
+        aircraft: parseInt(document.getElementById('trainAircraft').value) || 0,
+        ships: parseInt(document.getElementById('trainShips').value) || 0
+    };
+    
+    const totalUnits = Object.values(trainingData).reduce((a, b) => a + b, 0);
+    if (totalUnits === 0) {
+        showNotification('Error', 'Please select at least one unit to train', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/train_units', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(trainingData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Success!', `Successfully trained ${totalUnits} units!`, 'success');
+            
+            // Update current resources display
+            currentResources.gold = result.empire.resources.gold;
+            currentResources.food = result.empire.resources.food;
+            currentResources.iron = result.empire.resources.iron;
+            currentResources.oil = result.empire.resources.oil;
+            
+            document.getElementById('currentGold').textContent = formatNumber(currentResources.gold);
+            document.getElementById('currentFood').textContent = formatNumber(currentResources.food);
+            document.getElementById('currentIron').textContent = formatNumber(currentResources.iron);
+            document.getElementById('currentOil').textContent = formatNumber(currentResources.oil);
+            
+            // Clear training form
+            clearTraining();
+            
+            // Refresh page after a short delay to show updated military
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+            
+        } else {
+            showNotification('Error', result.error || 'Failed to train units', 'danger');
+        }
+    } catch (error) {
+        console.error('Error training units:', error);
+        showNotification('Error', 'Network error. Please try again.', 'danger');
+    }
+});
+
+// Initialize cost calculation
+updateTrainingCost();
+</script>
+{% endblock %}

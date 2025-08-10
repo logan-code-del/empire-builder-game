@@ -1,0 +1,456 @@
+{% extends "base.html" %}
+
+{% block title %}Cities & Buildings - Empire Builder{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="empire-card p-4 mb-4">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-city"></i> Cities & Buildings
+            </h2>
+            
+            <!-- Empire Overview -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="resource-card">
+                        <i class="fas fa-map text-success"></i>
+                        <h6>Land</h6>
+                        <span class="h5">{{ "{:,}".format(empire.land) }}</span>
+                        <small class="d-block">acres</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="resource-card">
+                        <i class="fas fa-city text-primary"></i>
+                        <h6>Cities</h6>
+                        <span class="h5">{{ empire.cities|length }}</span>
+                        <small class="d-block">total</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="resource-card">
+                        <i class="fas fa-building text-info"></i>
+                        <h6>Buildings</h6>
+                        <span class="h5">{{ empire.buildings.values()|sum }}</span>
+                        <small class="d-block">total</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="resource-card">
+                        <i class="fas fa-coins text-warning"></i>
+                        <h6>Land Cost</h6>
+                        <span class="h5">{{ land_cost }}</span>
+                        <small class="d-block">gold/acre</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="fas fa-plus"></i> Build New City</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="buildCityForm">
+                                <div class="mb-3">
+                                    <label class="form-label">City Name</label>
+                                    <input type="text" class="form-control" id="cityName" placeholder="Enter city name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">City Type</label>
+                                    <select class="form-select" id="cityType">
+                                        <option value="small">Small City (15 buildings max)</option>
+                                        <option value="medium">Medium City (35 buildings max)</option>
+                                        <option value="large">Large City (60 buildings max)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <div id="cityCostDisplay" class="alert alert-info">
+                                        <strong>Cost:</strong> <span id="costText">5,000 Gold, 500 Population, 100 Land</span>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-hammer"></i> Build City
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0"><i class="fas fa-expand-arrows-alt"></i> Buy Land</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="buyLandForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Acres to Buy</label>
+                                    <input type="number" class="form-control" id="landAmount" min="1" max="10000" value="100">
+                                </div>
+                                <div class="mb-3">
+                                    <div class="alert alert-warning">
+                                        <strong>Cost:</strong> <span id="landCostDisplay">1,000 Gold</span>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-shopping-cart"></i> Buy Land
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Existing Cities -->
+            <div class="row">
+                <div class="col-12">
+                    <h4><i class="fas fa-city"></i> Your Cities</h4>
+                    
+                    {% if empire.cities %}
+                        <div class="row">
+                            {% for city_id, city in empire.cities.items() %}
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card city-card">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-city"></i> {{ city.name }}
+                                            <span class="badge bg-light text-dark ms-2">{{ city.type.title() }}</span>
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-6">
+                                                <small class="text-muted">Buildings:</small><br>
+                                                <strong>{{ city.buildings.values()|sum }}/{{ city_stats[city.type].max_buildings }}</strong>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted">Defense Bonus:</small><br>
+                                                <strong>+{{ ((city_stats[city.type].defense_bonus - 1) * 100)|int }}%</strong>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Building List -->
+                                        <div class="mb-3">
+                                            <small class="text-muted">Buildings:</small>
+                                            {% for building_type, count in city.buildings.items() %}
+                                                {% if count > 0 %}
+                                                <div class="d-flex justify-content-between">
+                                                    <span>{{ building_types[building_type].name }}</span>
+                                                    <span class="badge bg-secondary">{{ count }}</span>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        
+                                        <button class="btn btn-sm btn-outline-primary" onclick="showBuildingModal('{{ city_id }}', '{{ city.name }}')">
+                                            <i class="fas fa-plus"></i> Add Building
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> You haven't built any cities yet. Build your first city to start constructing buildings and boosting your resource production!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Building Types Reference -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h4><i class="fas fa-building"></i> Available Buildings</h4>
+                    <div class="row">
+                        {% for building_id, building in building_types.items() %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card building-info-card">
+                                <div class="card-body p-3">
+                                    <h6 class="card-title">
+                                        {% if building_id == 'farm' %}
+                                            <i class="fas fa-seedling text-success"></i>
+                                        {% elif building_id == 'mine' %}
+                                            <i class="fas fa-mountain text-secondary"></i>
+                                        {% elif building_id == 'oil_well' %}
+                                            <i class="fas fa-oil-can text-dark"></i>
+                                        {% elif building_id == 'bank' %}
+                                            <i class="fas fa-university text-warning"></i>
+                                        {% elif building_id == 'housing' %}
+                                            <i class="fas fa-home text-info"></i>
+                                        {% elif building_id == 'factory' %}
+                                            <i class="fas fa-industry text-danger"></i>
+                                        {% endif %}
+                                        {{ building.name }}
+                                    </h6>
+                                    <p class="card-text small">{{ building.description }}</p>
+                                    
+                                    <div class="mb-2">
+                                        <strong>Production:</strong>
+                                        {% for resource, amount in building.production.items() %}
+                                            <span class="badge bg-success">+{{ amount }} {{ resource.title() }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <strong>Cost:</strong>
+                                        {% for resource, cost in building.cost.items() %}
+                                            <span class="badge bg-warning text-dark">{{ cost }} {{ resource.title() }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <div class="small text-muted">
+                                        <div>Land: {{ building.land_required }} acres</div>
+                                        <div>Max per city: {{ building.max_per_city }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Building Modal -->
+<div class="modal fade" id="buildingModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-hammer"></i> Build in <span id="modalCityName"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="buildingOptions">
+                    <!-- Building options will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.city-card {
+    transition: transform 0.2s;
+}
+
+.city-card:hover {
+    transform: translateY(-2px);
+}
+
+.building-info-card {
+    height: 100%;
+    border-left: 4px solid #007bff;
+}
+
+.resource-card {
+    text-align: center;
+    padding: 15px;
+    background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+    border-radius: 10px;
+    margin: 5px;
+}
+
+.building-option {
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.building-option:hover {
+    border-color: #007bff;
+    transform: scale(1.02);
+}
+
+.building-option.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const empire = {{ empire | tojson }};
+const buildingTypes = {{ building_types | tojson }};
+const cityCosts = {{ city_costs | tojson }};
+const cityStats = {{ city_stats | tojson }};
+const landCost = {{ land_cost }};
+
+// Update city cost display
+document.getElementById('cityType').addEventListener('change', function() {
+    const cityType = this.value;
+    const costs = cityCosts[cityType];
+    const costText = `${costs.gold.toLocaleString()} Gold, ${costs.population.toLocaleString()} Population, ${costs.land.toLocaleString()} Land`;
+    document.getElementById('costText').textContent = costText;
+});
+
+// Update land cost display
+document.getElementById('landAmount').addEventListener('input', function() {
+    const acres = parseInt(this.value) || 0;
+    const totalCost = acres * landCost;
+    document.getElementById('landCostDisplay').textContent = `${totalCost.toLocaleString()} Gold`;
+});
+
+// Build city form
+document.getElementById('buildCityForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const cityName = document.getElementById('cityName').value;
+    const cityType = document.getElementById('cityType').value;
+    
+    try {
+        const response = await fetch('/api/build_city', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: cityName,
+                type: cityType
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Success!', `Built ${cityName} successfully!`, 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification('Error', result.error || 'Failed to build city', 'danger');
+        }
+    } catch (error) {
+        showNotification('Error', 'Network error occurred', 'danger');
+    }
+});
+
+// Buy land form
+document.getElementById('buyLandForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const acres = parseInt(document.getElementById('landAmount').value);
+    
+    try {
+        const response = await fetch('/api/buy_land', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                acres: acres
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Success!', `Bought ${acres} acres of land!`, 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification('Error', result.error || 'Failed to buy land', 'danger');
+        }
+    } catch (error) {
+        showNotification('Error', 'Network error occurred', 'danger');
+    }
+});
+
+// Show building modal
+function showBuildingModal(cityId, cityName) {
+    document.getElementById('modalCityName').textContent = cityName;
+    
+    const city = empire.cities[cityId];
+    const buildingOptionsDiv = document.getElementById('buildingOptions');
+    buildingOptionsDiv.innerHTML = '';
+    
+    Object.entries(buildingTypes).forEach(([buildingId, building]) => {
+        const currentCount = city.buildings[buildingId] || 0;
+        const maxCount = building.max_per_city;
+        const canBuild = currentCount < maxCount;
+        
+        // Check if player can afford it
+        let canAfford = true;
+        Object.entries(building.cost).forEach(([resource, cost]) => {
+            if (empire.resources[resource] < cost) {
+                canAfford = false;
+            }
+        });
+        
+        // Check land requirement
+        const hasLand = empire.land >= building.land_required;
+        
+        const isDisabled = !canBuild || !canAfford || !hasLand;
+        
+        const buildingDiv = document.createElement('div');
+        buildingDiv.className = `col-md-6 mb-3`;
+        buildingDiv.innerHTML = `
+            <div class="card building-option ${isDisabled ? 'disabled' : ''}" onclick="${isDisabled ? '' : `buildBuilding('${cityId}', '${buildingId}')`}">
+                <div class="card-body p-3">
+                    <h6 class="card-title">${building.name}</h6>
+                    <p class="card-text small">${building.description}</p>
+                    <div class="mb-2">
+                        <strong>Production:</strong>
+                        ${Object.entries(building.production).map(([res, amt]) => 
+                            `<span class="badge bg-success">+${amt} ${res}</span>`
+                        ).join(' ')}
+                    </div>
+                    <div class="mb-2">
+                        <strong>Cost:</strong>
+                        ${Object.entries(building.cost).map(([res, cost]) => 
+                            `<span class="badge bg-warning text-dark">${cost} ${res}</span>`
+                        ).join(' ')}
+                    </div>
+                    <div class="small">
+                        <div>Count: ${currentCount}/${maxCount}</div>
+                        <div>Land: ${building.land_required} acres</div>
+                        ${!canAfford ? '<div class="text-danger">Insufficient resources</div>' : ''}
+                        ${!hasLand ? '<div class="text-danger">Insufficient land</div>' : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        buildingOptionsDiv.appendChild(buildingDiv);
+    });
+    
+    const modal = new bootstrap.Modal(document.getElementById('buildingModal'));
+    modal.show();
+}
+
+// Build building
+async function buildBuilding(cityId, buildingType) {
+    try {
+        const response = await fetch('/api/build_building', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                city_id: cityId,
+                building_type: buildingType
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Success!', `Built ${buildingTypes[buildingType].name}!`, 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification('Error', result.error || 'Failed to build', 'danger');
+        }
+    } catch (error) {
+        showNotification('Error', 'Network error occurred', 'danger');
+    }
+}
+</script>
+{% endblock %}

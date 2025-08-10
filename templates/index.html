@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Empire Builder - Build Your Empire{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="empire-card p-5 text-center">
+            <h1 class="display-4 mb-4">
+                <i class="fas fa-crown text-warning"></i>
+                Empire Builder
+            </h1>
+            
+            <p class="lead mb-4">
+                Build your empire, command armies, and conquer the world! 
+                Start with 2,000 acres of land and grow your nation through 
+                strategic warfare, resource management, and diplomacy.
+            </p>
+            
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="feature-card p-3">
+                        <i class="fas fa-map-marked-alt fa-3x text-primary mb-3"></i>
+                        <h5>Global Conquest</h5>
+                        <p>Choose your starting location on a real world map and expand your territory</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card p-3">
+                        <i class="fas fa-fighter-jet fa-3x text-success mb-3"></i>
+                        <h5>Military Forces</h5>
+                        <p>Build armies, navies, and air forces with real-time combat simulation</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card p-3">
+                        <i class="fas fa-users fa-3x text-info mb-3"></i>
+                        <h5>Multiplayer</h5>
+                        <p>Play against other players or AI opponents in real-time strategy battles</p>
+                    </div>
+                </div>
+            </div>
+            
+            {% if not session.empire_id %}
+            <div class="d-grid gap-2 d-md-block">
+                <a href="{{ url_for('create_empire') }}" class="btn btn-empire btn-lg me-3">
+                    <i class="fas fa-plus"></i> Create Your Empire
+                </a>
+                <button class="btn btn-outline-secondary btn-lg" onclick="showGameInfo()">
+                    <i class="fas fa-info-circle"></i> How to Play
+                </button>
+            </div>
+            {% else %}
+            <div class="d-grid gap-2 d-md-block">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-empire btn-lg me-3">
+                    <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                </a>
+                <a href="{{ url_for('world_map') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-globe"></i> View World Map
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Game Info Modal -->
+<div class="modal fade" id="gameInfoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-book"></i> How to Play Empire Builder
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-flag"></i> Getting Started</h6>
+                        <ul>
+                            <li>Create your empire with a unique name and ruler</li>
+                            <li>Choose your starting location on the world map</li>
+                            <li>Begin with 2,000 acres of land and starting resources</li>
+                            <li>Build your military forces and expand your territory</li>
+                        </ul>
+                        
+                        <h6><i class="fas fa-coins"></i> Resources</h6>
+                        <ul>
+                            <li><strong>Gold:</strong> Primary currency for everything</li>
+                            <li><strong>Food:</strong> Feeds your population and army</li>
+                            <li><strong>Iron:</strong> Essential for military equipment</li>
+                            <li><strong>Oil:</strong> Powers modern military units</li>
+                            <li><strong>Population:</strong> Provides workforce and soldiers</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-shield-alt"></i> Military Units</h6>
+                        <ul>
+                            <li><strong>Infantry:</strong> Basic ground forces, cheap and reliable</li>
+                            <li><strong>Tanks:</strong> Heavy ground units with high attack</li>
+                            <li><strong>Aircraft:</strong> Fast air units with strong offense</li>
+                            <li><strong>Ships:</strong> Naval forces with balanced stats</li>
+                        </ul>
+                        
+                        <h6><i class="fas fa-sword"></i> Combat</h6>
+                        <ul>
+                            <li>Attack other empires to capture land and resources</li>
+                            <li>Defend your territory from enemy attacks</li>
+                            <li>Real-time battle calculations with unit losses</li>
+                            <li>Strategic positioning and unit composition matter</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-lightbulb"></i>
+                    <strong>Pro Tip:</strong> Balance your economy and military. A strong economy 
+                    supports a powerful military, but you need forces to protect your resources!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                {% if not session.empire_id %}
+                <a href="{{ url_for('create_empire') }}" class="btn btn-empire">
+                    <i class="fas fa-plus"></i> Create Empire
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.feature-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    transition: transform 0.3s;
+    height: 100%;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+</style>
+
+<script>
+function showGameInfo() {
+    new bootstrap.Modal(document.getElementById('gameInfoModal')).show();
+}
+</script>
+{% endblock %}

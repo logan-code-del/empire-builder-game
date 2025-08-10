@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+
+{% block title %}World Map - Empire Builder{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-9">
+        <div class="empire-card p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4><i class="fas fa-globe"></i> World Map</h4>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="refreshMap()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button class="btn btn-sm btn-outline-success" onclick="centerOnMyEmpire()">
+                        <i class="fas fa-crosshairs"></i> My Empire
+                    </button>
+                </div>
+            </div>
+            <div id="worldMap" style="height: 600px; border-radius: 10px;"></div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3">
+        <!-- Empire List -->
+        <div class="empire-card p-3 mb-3">
+            <h6><i class="fas fa-list"></i> All Empires</h6>
+            <div id="empireList" style="max-height: 300px; overflow-y: auto;">
+                {% for empire in empires %}
+                <div class="empire-item p-2 mb-2 border rounded" data-empire-id="{{ empire.id }}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ empire.name }}</strong><br>
+                            <small class="text-muted">{{ empire.ruler }}</small>
+                        </div>
+                        <div class="text-end">
+                            <small>{{ "{:,}".format(empire.land) }} acres</small><br>
+                            {% if empire.id != session.empire_id %}
+                            <button class="btn btn-sm btn-attack" onclick="showAttackModal('{{ empire.id }}', '{{ empire.name }}')">
+                                <i class="fas fa-sword"></i>
+                            </button>
+                            {% else %}
+                            <span class="badge bg-primary">You</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Map Legend -->
+        <div class="empire-card p-3">
+            <h6><i class="fas fa-info-circle"></i> Legend</h6>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #007bff;"></span>
+                Your Empire
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #28a745;"></span>
+                Allied Empires
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #dc3545;"></span>
+                Enemy Empires
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #6c757d;"></span>
+                Neutral Empires
+            </div>
+            <hr>
+            <small class="text-muted">
+                Click on empire markers to view details or launch attacks.
+                Larger markers indicate more powerful empires.
+            </small>
+        </div>
+    </div>
+</div>
+
+<!-- Attack Modal -->
+<div class="modal fade" id="attackModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-sword"></i> Attack Empire
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Target Empire</h6>
+                        <div id="targetInfo" class="p-3 bg-light rounded mb-3">
+                            <!-- Target info will be loaded here -->
+                        </div>
+                        
+                        <h6>Select Attack Force</h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label">Infantry</label>
+                                <input type="number" class="form-control" id="attackInfantry" min="0" value="0">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Tanks</label>
+                                <input type="number" class="form-control" id="attackTanks" min="0" value="0">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Aircraft</label>
+                                <input type="number" class="form-control" id="attackAircraft" min="0" value="0">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Ships</label>
+                                <input type="number" class="form-control" id="attackShips" min="0" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Your Forces</h6>
+                        <div id="yourForces" class="p-3 bg-light rounded mb-3">
+                            <!-- Your forces will be loaded here -->
+                        </div>
+                        
+                        <h6>Battle Prediction</h6>
+                        <div id="battlePrediction" class="p-3 bg-warning rounded">
+                            <small>Select units to see battle prediction</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-attack" id="launchAttackBtn" onclick="launchAttack()">
+                    <i class="fas fa-rocket"></i> Launch Attack
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.empire-item {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.empire-item:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 2px solid #fff;
+    box-shadow: 0 0 3px rgba(0,0,0,0.3);
+}
+</style>
+
+<script>
+let worldMap;
+let empireMarkers = [];
+let currentEmpireId = '{{ session.empire_id }}';
+let targetEmpireId = null;
+
+// Initialize world map
+document.addEventListener('DOMContentLoaded', function() {
+    worldMap = L.map('worldMap').setView([20, 0], 2);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(worldMap);
+    
+    loadEmpireMarkers();
+});
+
+function loadEmpireMarkers() {
+    // Clear existing markers
+    empireMarkers.forEach(marker => worldMap.removeLayer(marker));
+    empireMarkers = [];
+    
+    const empires = {{ empires | tojson }};
+    
+    empires.forEach(empire => {
+        const location = empire.location;
+        if (location.lat && location.lng) {
+            // Calculate marker size based on empire power
+            const totalPower = empire.military.infantry * 10 + empire.military.tanks * 25 + 
+                              empire.military.aircraft * 30 + empire.military.ships * 20;
+            const markerSize = Math.max(20, Math.min(50, totalPower / 100));
+            
+            // Determine marker color
+            let markerColor = '#6c757d'; // neutral
+            if (empire.id === currentEmpireId) {
+                markerColor = '#007bff'; // your empire
+            }
+            
+            // Create custom marker
+            const marker = L.circleMarker([location.lat, location.lng], {
+                radius: markerSize / 4,
+                fillColor: markerColor,
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(worldMap);
+            
+            // Create popup content
+            const popupContent = `
+                <div class="text-center">
+                    <h6>${empire.name}</h6>
+                    <p><strong>Ruler:</strong> ${empire.ruler}</p>
+                    <p><strong>Land:</strong> ${formatNumber(empire.land)} acres</p>
+                    <p><strong>Population:</strong> ${formatNumber(empire.resources.population)}</p>
+                    <p><strong>Military Power:</strong> ${formatNumber(totalPower)}</p>
+                    ${empire.id !== currentEmpireId ? 
+                        `<button class="btn btn-sm btn-attack" onclick="showAttackModal('${empire.id}', '${empire.name}')">
+                            <i class="fas fa-sword"></i> Attack
+                        </button>` : 
+                        '<span class="badge bg-primary">Your Empire</span>'
+                    }
+                </div>
+            `;
+            
+            marker.bindPopup(popupContent);
+            empireMarkers.push(marker);
+        }
+    });
+}
+
+function refreshMap() {
+    location.reload();
+}
+
+function centerOnMyEmpire() {
+    const empires = {{ empires | tojson }};
+    const myEmpire = empires.find(e => e.id === currentEmpireId);
+    
+    if (myEmpire && myEmpire.location.lat && myEmpire.location.lng) {
+        worldMap.setView([myEmpire.location.lat, myEmpire.location.lng], 6);
+    }
+}
+
+async function showAttackModal(empireId, empireName) {
+    targetEmpireId = empireId;
+    
+    try {
+        // Load target empire data
+        const response = await fetch(`/api/empire/${empireId}`);
+        const targetEmpire = await response.json();
+        
+        if (targetEmpire.error) {
+            showNotification('Error', 'Failed to load target empire data', 'danger');
+            return;
+        }
+        
+        // Load your empire data
+        const yourResponse = await fetch(`/api/empire/${currentEmpireId}`);
+        const yourEmpire = await yourResponse.json();
+        
+        // Update modal content
+        document.getElementById('targetInfo').innerHTML = `
+            <h6>${targetEmpire.name}</h6>
+            <p><strong>Ruler:</strong> ${targetEmpire.ruler}</p>
+            <p><strong>Land:</strong> ${formatNumber(targetEmpire.land)} acres</p>
+            <div class="row text-center">
+                <div class="col-3">
+                    <div><strong>${formatNumber(targetEmpire.military.infantry)}</strong></div>
+                    <small>Infantry</small>
+                </div>
+                <div class="col-3">
+                    <div><strong>${formatNumber(targetEmpire.military.tanks)}</strong></div>
+                    <small>Tanks</small>
+                </div>
+                <div class="col-3">
+                    <div><strong>${formatNumber(targetEmpire.military.aircraft)}</strong></div>
+                    <small>Aircraft</small>
+                </div>
+                <div class="col-3">
+                    <div><strong>${formatNumber(targetEmpire.military.ships)}</strong></div>
+                    <small>Ships</small>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('yourForces').innerHTML = `
+            <h6>Available Forces</h6>
+            <div class="row text-center">
+                <div class="col-3">
+                    <div><strong>${formatNumber(yourEmpire.military.infantry)}</strong></div>
+                    <small>Infantry</small>
+                </div>
+                <div class="col-3">
+                    <div><strong>${formatNumber(yourEmpire.military.tanks)}</strong></div>
+                    <small>Tanks</small>
+                </div>
+                <div class="col-3">
+                    <div><strong>${formatNumber(yourEmpire.military.aircraft)}</strong></div>
+                    <small>Aircraft</small>
+                </div>
+                <div class="col-3">
+                    <div><strong>${formatNumber(yourEmpire.military.ships)}</strong></div>
+                    <small>Ships</small>
+                </div>
+            </div>
+        `;
+        
+        // Set max values for inputs
+        document.getElementById('attackInfantry').max = yourEmpire.military.infantry;
+        document.getElementById('attackTanks').max = yourEmpire.military.tanks;
+        document.getElementById('attackAircraft').max = yourEmpire.military.aircraft;
+        document.getElementById('attackShips').max = yourEmpire.military.ships;
+        
+        // Add event listeners for battle prediction
+        ['attackInfantry', 'attackTanks', 'attackAircraft', 'attackShips'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateBattlePrediction);
+        });
+        
+        new bootstrap.Modal(document.getElementById('attackModal')).show();
+        
+    } catch (error) {
+        console.error('Error loading empire data:', error);
+        showNotification('Error', 'Failed to load empire data', 'danger');
+    }
+}
+
+function updateBattlePrediction() {
+    const infantry = parseInt(document.getElementById('attackInfantry').value) || 0;
+    const tanks = parseInt(document.getElementById('attackTanks').value) || 0;
+    const aircraft = parseInt(document.getElementById('attackAircraft').value) || 0;
+    const ships = parseInt(document.getElementById('attackShips').value) || 0;
+    
+    const attackPower = infantry * 10 + tanks * 25 + aircraft * 30 + ships * 20;
+    
+    let prediction = '';
+    if (attackPower === 0) {
+        prediction = '<small>Select units to see battle prediction</small>';
+    } else {
+        prediction = `
+            <div><strong>Attack Power:</strong> ${formatNumber(attackPower)}</div>
+            <div class="mt-2">
+                <small class="text-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Battle outcomes depend on many factors including defender bonuses and randomness.
+                </small>
+            </div>
+        `;
+    }
+    
+    document.getElementById('battlePrediction').innerHTML = prediction;
+}
+
+async function launchAttack() {
+    const attackData = {
+        target_id: targetEmpireId,
+        units: {
+            infantry: parseInt(document.getElementById('attackInfantry').value) || 0,
+            tanks: parseInt(document.getElementById('attackTanks').value) || 0,
+            aircraft: parseInt(document.getElementById('attackAircraft').value) || 0,
+            ships: parseInt(document.getElementById('attackShips').value) || 0
+        }
+    };
+    
+    // Validate attack
+    const totalUnits = Object.values(attackData.units).reduce((a, b) => a + b, 0);
+    if (totalUnits === 0) {
+        showNotification('Error', 'You must select at least one unit to attack', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/attack', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(attackData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            showNotification('Error', result.error, 'danger');
+            return;
+        }
+        
+        // Close modal
+        bootstrap.Modal.getInstance(document.getElementById('attackModal')).hide();
+        
+        // Show battle result
+        showBattleResult(result);
+        
+        // Refresh map after a delay
+        setTimeout(() => {
+            refreshMap();
+        }, 3000);
+        
+    } catch (error) {
+        console.error('Error launching attack:', error);
+        showNotification('Error', 'Network error. Please try again.', 'danger');
+    }
+}
+
+function showBattleResult(result) {
+    const winner = result.winner === 'attacker' ? 'Victory!' : 'Defeat!';
+    const alertType = result.winner === 'attacker' ? 'success' : 'danger';
+    
+    let message = `
+        <strong>${winner}</strong><br>
+        Land captured: ${formatNumber(result.land_captured)} acres<br>
+        Your losses: ${Object.entries(result.attacker_losses).map(([unit, count]) => `${count} ${unit}`).join(', ')}<br>
+        Enemy losses: ${Object.entries(result.defender_losses).map(([unit, count]) => `${count} ${unit}`).join(', ')}
+    `;
+    
+    showNotification('Battle Result', message, alertType);
+}
+
+// Add click handlers for empire list items
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.empire-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const empireId = this.dataset.empireId;
+            const empires = {{ empires | tojson }};
+            const empire = empires.find(e => e.id === empireId);
+            
+            if (empire && empire.location.lat && empire.location.lng) {
+                worldMap.setView([empire.location.lat, empire.location.lng], 6);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

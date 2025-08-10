@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Empire Builder{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Leaflet CSS for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .empire-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .resource-card {
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 5px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .military-unit {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 5px;
+            text-align: center;
+        }
+        
+        .btn-empire {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-empire:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+            color: white;
+        }
+        
+        .btn-attack {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            border: none;
+            border-radius: 25px;
+            padding: 8px 20px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .btn-attack:hover {
+            background: linear-gradient(45deg, #c82333, #a71e2a);
+            color: white;
+        }
+        
+        .world-map {
+            height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .battle-log {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            min-width: 300px;
+        }
+        
+        .floating-help-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border: none;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .floating-help-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+            background: linear-gradient(45deg, #0056b3, #004085);
+        }
+        
+        .floating-help-btn:active {
+            transform: translateY(0);
+        }
+        
+        @media (max-width: 768px) {
+            .floating-help-btn {
+                bottom: 15px;
+                right: 15px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-crown"></i> Empire Builder
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    {% if session.empire_id %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('world_map') }}">
+                            <i class="fas fa-globe"></i> World Map
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('military') }}">
+                            <i class="fas fa-shield-alt"></i> Military
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('cities') }}">
+                            <i class="fas fa-city"></i> Cities
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#helpModal">
+                            <i class="fas fa-question-circle"></i> Help
+                        </a>
+                    </li>
+                    {% if session.empire_id %}
+                    <li class="nav-item">
+                        <span class="navbar-text">
+                            <i class="fas fa-user"></i> Empire ID: {{ session.empire_id[:8] }}...
+                        </span>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('create_empire') }}">
+                            <i class="fas fa-plus"></i> Create Empire
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Notification Area -->
+    <div id="notifications"></div>
+
+    <!-- Floating Help Button -->
+    <button class="floating-help-btn" data-bs-toggle="modal" data-bs-target="#helpModal" title="Help Guide (Press H)">
+        <i class="fas fa-question"></i>
+    </button>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="helpModalLabel">
+                        <i class="fas fa-crown"></i> Empire Builder - Help Guide
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Quick Start Guide -->
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-rocket"></i> Quick Start Guide</h6>
+                        <ol class="list-group list-group-numbered">
+                            <li class="list-group-item">
+                                <strong>Create Your Empire</strong><br>
+                                <small class="text-muted">Choose a unique name, ruler, and starting location on the world map</small>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Manage Resources</strong><br>
+                                <small class="text-muted">Monitor Gold, Food, Iron, Oil, and Population - they generate automatically</small>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Build Cities & Buildings</strong><br>
+                                <small class="text-muted">Construct cities and buildings to boost resource production</small>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Build Your Military</strong><br>
+                                <small class="text-muted">Train Infantry, Tanks, Aircraft, and Ships using your resources</small>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Explore the World</strong><br>
+                                <small class="text-muted">Use the World Map to find other empires and plan your strategy</small>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Attack & Conquer</strong><br>
+                                <small class="text-muted">Launch attacks to capture land and resources from other empires</small>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Expand Your Empire</strong><br>
+                                <small class="text-muted">Grow through strategic conquest and become the dominant power!</small>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <!-- Military Units -->
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-shield-alt"></i> Military Units</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-2">
+                                    <div class="card-body p-2">
+                                        <h6 class="card-title mb-1"><i class="fas fa-running"></i> Infantry</h6>
+                                        <small>
+                                            <strong>ATK:</strong> 10 | <strong>DEF:</strong> 15 | <strong>SPD:</strong> 5<br>
+                                            <strong>Cost:</strong> 100 Gold, 50 Iron, 20 Food<br>
+                                            <em>Basic ground forces, cheap and reliable</em>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="card mb-2">
+                                    <div class="card-body p-2">
+                                        <h6 class="card-title mb-1"><i class="fas fa-car"></i> Tanks</h6>
+                                        <small>
+                                            <strong>ATK:</strong> 25 | <strong>DEF:</strong> 20 | <strong>SPD:</strong> 8<br>
+                                            <strong>Cost:</strong> 500 Gold, 300 Iron, 100 Oil<br>
+                                            <em>Heavy ground units with high attack power</em>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-2">
+                                    <div class="card-body p-2">
+                                        <h6 class="card-title mb-1"><i class="fas fa-plane"></i> Aircraft</h6>
+                                        <small>
+                                            <strong>ATK:</strong> 30 | <strong>DEF:</strong> 10 | <strong>SPD:</strong> 15<br>
+                                            <strong>Cost:</strong> 1000 Gold, 400 Iron, 200 Oil<br>
+                                            <em>Fast air units with strong offense</em>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="card mb-2">
+                                    <div class="card-body p-2">
+                                        <h6 class="card-title mb-1"><i class="fas fa-ship"></i> Ships</h6>
+                                        <small>
+                                            <strong>ATK:</strong> 20 | <strong>DEF:</strong> 25 | <strong>SPD:</strong> 6<br>
+                                            <strong>Cost:</strong> 800 Gold, 500 Iron, 150 Oil<br>
+                                            <em>Naval forces with balanced stats</em>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cities & Buildings -->
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-city"></i> Cities & Buildings</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-secondary">City Types:</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-home text-success"></i> <strong>Small:</strong> 15 buildings max, +10% defense</li>
+                                    <li><i class="fas fa-building text-info"></i> <strong>Medium:</strong> 35 buildings max, +20% defense, +10% production</li>
+                                    <li><i class="fas fa-city text-warning"></i> <strong>Large:</strong> 60 buildings max, +30% defense, +20% production</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-secondary">Building Types:</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-seedling text-success"></i> <strong>Farm:</strong> +25 Food production</li>
+                                    <li><i class="fas fa-mountain text-secondary"></i> <strong>Mine:</strong> +15 Iron production</li>
+                                    <li><i class="fas fa-oil-can text-dark"></i> <strong>Oil Well:</strong> +10 Oil production</li>
+                                    <li><i class="fas fa-university text-warning"></i> <strong>Bank:</strong> +50 Gold production</li>
+                                    <li><i class="fas fa-home text-info"></i> <strong>Housing:</strong> +20 Population growth</li>
+                                    <li><i class="fas fa-industry text-danger"></i> <strong>Factory:</strong> Boosts multiple resources</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="alert alert-success">
+                            <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Buildings require land to construct and have limits per city. Larger cities can hold more buildings and provide production bonuses!
+                        </div>
+                    </div>
+
+                    <!-- Resources -->
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-coins"></i> Resources</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-coins text-warning"></i> <strong>Gold:</strong> Primary currency for training units</li>
+                                    <li><i class="fas fa-apple-alt text-success"></i> <strong>Food:</strong> Required for infantry units</li>
+                                    <li><i class="fas fa-hammer text-secondary"></i> <strong>Iron:</strong> Essential for all military units</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-oil-can text-dark"></i> <strong>Oil:</strong> Needed for tanks, aircraft, and ships</li>
+                                    <li><i class="fas fa-users text-info"></i> <strong>Population:</strong> Grows your empire's workforce</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> <strong>Tip:</strong> Resources generate automatically based on your land size. More land = more resources!
+                        </div>
+                    </div>
+
+                    <!-- Combat System -->
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-sword"></i> Combat System</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-calculator"></i> <strong>Battle Power:</strong> Calculated from unit attack/defense stats</li>
+                            <li><i class="fas fa-dice"></i> <strong>Randomness:</strong> Each battle has random elements for unpredictability</li>
+                            <li><i class="fas fa-shield"></i> <strong>Defender Advantage:</strong> Defending empires get a small bonus</li>
+                            <li><i class="fas fa-trophy"></i> <strong>Victory Rewards:</strong> Capture land and resources from defeated enemies</li>
+                            <li><i class="fas fa-skull"></i> <strong>Unit Losses:</strong> Both sides lose units in battle</li>
+                        </ul>
+                    </div>
+
+                    <!-- Navigation Guide -->
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-compass"></i> Navigation Guide</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-tachometer-alt"></i> <strong>Dashboard:</strong> View empire stats and quick actions</li>
+                                    <li><i class="fas fa-globe"></i> <strong>World Map:</strong> Interactive map to find and attack empires</li>
+                                    <li><i class="fas fa-shield-alt"></i> <strong>Military:</strong> Train units and manage your forces</li>
+                                    <li><i class="fas fa-city"></i> <strong>Cities:</strong> Build cities, construct buildings, buy land</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-question-circle"></i> <strong>Help:</strong> This guide (available on every page)</li>
+                                    <li><i class="fas fa-plus"></i> <strong>Create Empire:</strong> Start a new empire</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Strategy Tips -->
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-lightbulb"></i> Strategy Tips</h6>
+                        <div class="alert alert-success">
+                            <ul class="mb-0">
+                                <li><strong>Build Early:</strong> Construct cities and buildings early for long-term resource advantages</li>
+                                <li><strong>Land Management:</strong> Buy land strategically - you need it for buildings and expansion</li>
+                                <li><strong>City Planning:</strong> Start with small cities, upgrade to larger ones as you grow</li>
+                                <li><strong>Balance Your Forces:</strong> Mix different unit types for effective combat</li>
+                                <li><strong>Resource Management:</strong> Don't spend all resources at once - keep reserves</li>
+                                <li><strong>Target Selection:</strong> Attack weaker empires first to build strength</li>
+                                <li><strong>Timing:</strong> Resources generate over time, so patience can pay off</li>
+                                <li><strong>Defense:</strong> Keep some units at home to defend against attacks</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Keyboard Shortcuts -->
+                    <div class="mb-4">
+                        <h6 class="text-primary"><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><kbd>H</kbd> - Open this help guide</li>
+                                    <li><kbd>D</kbd> - Go to Dashboard</li>
+                                    <li><kbd>M</kbd> - Go to World Map</li>
+                                    <li><kbd>C</kbd> - Go to Cities</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><kbd>A</kbd> - Go to Military (Army)</li>
+                                    <li><kbd>Esc</kbd> - Close modals/dialogs</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="window.open('https://github.com/yourusername/empire-builder', '_blank')">
+                        <i class="fas fa-external-link-alt"></i> More Info
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Socket.IO -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize Socket.IO
+        const socket = io();
+        
+        socket.on('connect', function() {
+            console.log('Connected to Empire Builder server');
+            
+            // Show help tooltip for new users
+            if (!localStorage.getItem('empire_help_shown')) {
+                setTimeout(() => {
+                    showNotification('Welcome to Empire Builder!', 'Click the Help button (?) or press H for a complete guide', 'info');
+                    localStorage.setItem('empire_help_shown', 'true');
+                }, 2000);
+            }
+        });
+        
+        socket.on('battle_result', function(data) {
+            showNotification('Battle Update', `Battle completed! Winner: ${data.winner}`, 'info');
+            // Refresh page data
+            location.reload();
+        });
+        
+        function showNotification(title, message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show notification`;
+            notification.innerHTML = `
+                <strong>${title}</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.getElementById('notifications').appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+        
+        // Format numbers with commas
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Don't trigger shortcuts if user is typing in an input field
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            switch(e.key.toLowerCase()) {
+                case 'h':
+                    e.preventDefault();
+                    const helpModal = new bootstrap.Modal(document.getElementById('helpModal'));
+                    helpModal.show();
+                    break;
+                case 'd':
+                    e.preventDefault();
+                    if (document.querySelector('a[href*="dashboard"]')) {
+                        window.location.href = '/dashboard';
+                    }
+                    break;
+                case 'm':
+                    e.preventDefault();
+                    if (document.querySelector('a[href*="world_map"]')) {
+                        window.location.href = '/world_map';
+                    }
+                    break;
+                case 'a':
+                    e.preventDefault();
+                    if (document.querySelector('a[href*="military"]')) {
+                        window.location.href = '/military';
+                    }
+                    break;
+                case 'c':
+                    e.preventDefault();
+                    if (document.querySelector('a[href*="cities"]')) {
+                        window.location.href = '/cities';
+                    }
+                    break;
+                case 'escape':
+                    // Close any open modals
+                    const openModals = document.querySelectorAll('.modal.show');
+                    openModals.forEach(modal => {
+                        const modalInstance = bootstrap.Modal.getInstance(modal);
+                        if (modalInstance) {
+                            modalInstance.hide();
+                        }
+                    });
+                    break;
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
