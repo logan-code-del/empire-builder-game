@@ -41,11 +41,19 @@ git branch -M main
 git push -u origin main
 ```
 
-### Step 4: Deploy to Heroku (One-Click!)
+### Step 4: Deploy to Render (Easy Setup!)
 
 1. **Update your README**: Replace `yourusername` with your actual GitHub username
-2. **Click the Deploy Button**: In your GitHub repository README
-3. **Or go directly**: https://heroku.com/deploy?template=https://github.com/yourusername/empire-builder-game
+2. **Go to Render**: https://render.com
+3. **Sign up/Login** with your GitHub account
+4. **Create Web Service**: Click "New +" → "Web Service"
+5. **Connect Repository**: Select your empire-builder-game repository
+6. **Configure Settings**:
+   - Name: `empire-builder`
+   - Environment: `Python 3`
+   - Build Command: `pip install -r requirements.txt`
+   - Start Command: `python app.py`
+7. **Deploy**: Click "Create Web Service"
 
 That's it! Your game will be live in 2-3 minutes! 🎉
 
@@ -87,21 +95,16 @@ All deployment files are ready:
 
 ## 🌐 Deployment Options
 
-### Option 1: Heroku (Recommended)
+### Option 1: Render (Recommended)
 
-**Pros**: Free tier, easy setup, one-click deploy
-**Best for**: Getting started quickly
+**Pros**: Free tier, modern platform, easy setup, automatic SSL
+**Best for**: Getting started quickly with great performance
 
-1. **One-Click Deploy**: Use the button in your README
-2. **Manual Deploy**: 
-   ```bash
-   # Install Heroku CLI
-   # Create Heroku app
-   heroku create your-empire-builder-app
-   
-   # Deploy
-   git push heroku main
-   ```
+1. **Web Interface Deploy**: 
+   - Go to render.com
+   - Connect GitHub repository
+   - Configure and deploy
+2. **Automatic Deploys**: Updates automatically when you push to GitHub
 
 ### Option 2: Railway
 
@@ -112,17 +115,15 @@ All deployment files are ready:
 2. Connect your GitHub repository
 3. Deploy automatically
 
-### Option 3: Render
+### Option 3: Heroku
 
-**Pros**: Free tier, simple setup
-**Best for**: Alternative to Heroku
+**Pros**: Well-established platform, lots of documentation
+**Best for**: If you prefer traditional PaaS
 
-1. Go to https://render.com
-2. Create new Web Service
+1. Go to https://heroku.com
+2. Create new app
 3. Connect GitHub repository
-4. Use these settings:
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `python app.py`
+4. Deploy branch
 
 ## 📝 Customization Checklist
 

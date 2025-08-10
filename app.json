@@ -4,13 +4,8 @@
   "repository": "https://github.com/yourusername/empire-builder-game",
   "logo": "https://via.placeholder.com/120x120/2c3e50/ffffff?text=EB",
   "keywords": ["python", "flask", "game", "strategy", "real-time", "multiplayer"],
-  "image": "heroku/python",
-  "stack": "heroku-22",
-  "buildpacks": [
-    {
-      "url": "heroku/python"
-    }
-  ],
+  "website": "https://github.com/yourusername/empire-builder-game",
+  "success_url": "/",
   "env": {
     "SECRET_KEY": {
       "description": "A secret key for Flask sessions",
@@ -20,22 +15,5 @@
       "description": "Flask environment",
       "value": "production"
     }
-  },
-  "formation": {
-    "web": {
-      "quantity": 1,
-      "size": "basic"
-    }
-  },
-  "addons": [
-    {
-      "plan": "heroku-postgresql:mini",
-      "as": "DATABASE"
-    }
-  ],
-  "scripts": {
-    "postdeploy": "echo 'Empire Builder deployed successfully!'"
-  },
-  "success_url": "/",
-  "website": "https://github.com/yourusername/empire-builder-game"
+  }
 }

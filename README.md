@@ -3,11 +3,11 @@
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Flask](https://img.shields.io/badge/Flask-2.3+-green.svg)](https://flask.palletsprojects.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Deploy](https://img.shields.io/badge/Deploy-Heroku-purple.svg)](https://heroku.com)
+[![Deploy](https://img.shields.io/badge/Deploy-Render-46E3B7.svg)](https://render.com)
 
 A comprehensive web-based empire building strategy game where players create their own nations, build cities, manage resources, and engage in real-time combat for territorial expansion and world domination.
 
-## 🎮 [Play Online](https://your-deployed-url-here.herokuapp.com) | 📖 [Documentation](CITIES_AND_BUILDINGS.md) | 🚀 [Deploy Guide](DEPLOYMENT.md)
+## 🎮 [Play Online](https://your-empire-builder.onrender.com) | 📖 [Documentation](CITIES_AND_BUILDINGS.md) | 🚀 [Deploy Guide](DEPLOYMENT.md)
 
 ![Empire Builder Screenshot](https://via.placeholder.com/800x400/1a1a1a/ffffff?text=Empire+Builder+Game+Screenshot)
 
@@ -63,7 +63,7 @@ Train and deploy diverse military forces:
 ## 🚀 Quick Start
 
 ### 🎮 Play Online (Recommended)
-**[Start Playing Now!](https://your-deployed-url-here.herokuapp.com)**
+**[Start Playing Now!](https://your-empire-builder.onrender.com)**
 
 ### 💻 Local Development
 ```bash
@@ -122,13 +122,13 @@ python app.py
 Deploy your own instance of Empire Builder:
 
 ### One-Click Deploy
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
 
 ### Manual Deployment
 See our [Deployment Guide](DEPLOYMENT.md) for detailed instructions on:
-- Heroku deployment
+- Render deployment (recommended)
 - Railway deployment  
-- Render deployment
+- Heroku deployment
 - Local development setup
 
 ## 🤝 Contributing
@@ -242,7 +242,7 @@ If you enjoy Empire Builder, please:
 
 **🌍 Ready to build your empire and conquer the world? 🏰**
 
-### [🎮 Start Playing Now!](https://your-deployed-url-here.herokuapp.com)
+### [🎮 Start Playing Now!](https://your-empire-builder.onrender.com)
 
 *Build • Expand • Conquer • Dominate*
 

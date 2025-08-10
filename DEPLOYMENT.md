@@ -4,11 +4,11 @@ This guide will help you deploy Empire Builder to various platforms so people ca
 
 ## 🚀 Quick Deploy Options
 
-### Option 1: Heroku (Recommended - Free Tier Available)
+### Option 1: Render (Recommended - Free Tier Available)
 
 #### Prerequisites
 - GitHub account
-- Heroku account (free at heroku.com)
+- Render account (free at render.com)
 - Git installed on your computer
 
 #### Steps
@@ -30,16 +30,33 @@ This guide will help you deploy Empire Builder to various platforms so people ca
    git push -u origin main
    ```
 
-3. **Deploy to Heroku**
-   - Go to heroku.com and create a new app
+3. **Deploy to Render**
+   - Go to render.com and sign up/login
+   - Click "New +" and select "Web Service"
    - Connect your GitHub repository
-   - Enable automatic deploys
-   - Click "Deploy Branch"
+   - Use these settings:
+     - **Name**: empire-builder
+     - **Environment**: Python 3
+     - **Build Command**: `pip install -r requirements.txt`
+     - **Start Command**: `python app.py`
+   - Click "Create Web Service"
 
-4. **Set Environment Variables** (Optional but recommended)
-   - In Heroku dashboard, go to Settings > Config Vars
-   - Add: `SECRET_KEY` = `your-secret-key-here`
-   - Add: `FLASK_ENV` = `production`
+4. **Environment Variables** (Automatically configured)
+   - Render will automatically generate a SECRET_KEY
+   - FLASK_ENV is set to production via render.yaml
+   - Your app will be live at: `https://your-app-name.onrender.com`
+
+**🎉 That's it! Your game is now live and accessible to anyone!**
+
+**Render Benefits:**
+- ✅ Free tier with 750 hours/month
+- ✅ No sleeping (unlike Heroku free tier)
+- ✅ Automatic SSL certificates
+- ✅ Fast deployments and builds
+- ✅ Auto-deploy on GitHub push
+- ✅ Modern infrastructure
+
+**📖 Detailed Render Guide**: See [RENDER_DEPLOY.md](RENDER_DEPLOY.md) for complete instructions.
 
 ### Option 2: Railway (Modern Alternative)
 
@@ -48,15 +65,13 @@ This guide will help you deploy Empire Builder to various platforms so people ca
 3. **Connect GitHub repository**
 4. **Deploy automatically**
 
-### Option 3: Render (Free Tier)
+### Option 3: Heroku (Alternative)
 
 1. **Push to GitHub** (same as above)
-2. **Go to render.com**
-3. **Create new Web Service**
+2. **Go to heroku.com**
+3. **Create new app**
 4. **Connect GitHub repository**
-5. **Use these settings:**
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `python app.py`
+5. **Deploy branch**
 
 ## 🔧 Local Development Setup
 

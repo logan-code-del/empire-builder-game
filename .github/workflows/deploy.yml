@@ -1,4 +1,4 @@
-name: Deploy to Heroku
+name: Deploy to Render
 
 on:
   push:
@@ -35,9 +35,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Deploy to Heroku
-      uses: akhileshns/heroku-deploy@v3.12.12
+    - name: Deploy to Render
+      uses: johnbeynon/render-deploy-action@v0.0.8
       with:
-        heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-        heroku_app_name: "your-empire-builder-app"
-        heroku_email: "your-email@example.com"
+        service-id: ${{ secrets.RENDER_SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}

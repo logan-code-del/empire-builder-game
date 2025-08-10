@@ -99,13 +99,16 @@ def display_next_steps():
     print("   git branch -M main")
     print("   git push -u origin main")
     
-    print("\n3. Deploy to Heroku (One-Click):")
-    print("   - Click the 'Deploy to Heroku' button in your README")
-    print("   - Or go to: https://heroku.com/deploy?template=https://github.com/yourusername/empire-builder-game")
+    print("\n3. Deploy to Render (Easy Setup):")
+    print("   - Go to https://render.com")
+    print("   - Sign up/login with GitHub")
+    print("   - Create Web Service and connect your repository")
+    print("   - Use: Build Command: pip install -r requirements.txt")
+    print("   - Use: Start Command: python app.py")
     
     print("\n4. Alternative Deployment Options:")
     print("   - Railway: https://railway.app")
-    print("   - Render: https://render.com")
+    print("   - Heroku: https://heroku.com")
     print("   - See DEPLOYMENT.md for detailed instructions")
     
     print("\n5. Update README:")
@@ -124,7 +127,7 @@ def display_next_steps():
     print("✅ GitHub Actions workflow")
     
     print("\n🚀 DEPLOYMENT FEATURES:")
-    print("✅ Heroku one-click deploy button")
+    print("✅ Render deployment configuration")
     print("✅ Environment variable configuration")
     print("✅ Production-ready settings")
     print("✅ Database migration support")
