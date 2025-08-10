@@ -111,6 +111,7 @@ python app.py
 ## 🛠️ Technical Features
 
 - **Framework**: Flask + Socket.IO for real-time gameplay
+- **Production Server**: Gunicorn with eventlet for WebSocket support
 - **Database**: SQLite with PostgreSQL support
 - **Frontend**: Responsive HTML5/CSS3/JavaScript
 - **Real-time**: WebSocket communication
@@ -168,7 +169,9 @@ python app.py
 
 - 📖 [Cities & Buildings Guide](CITIES_AND_BUILDINGS.md) - Complete building system guide
 - 🚀 [Deployment Guide](DEPLOYMENT.md) - Deploy to various platforms
+- 🌐 [Render Deploy Guide](RENDER_DEPLOY.md) - Detailed Render deployment
 - 🔧 [Troubleshooting](TROUBLESHOOTING.md) - Common issues and solutions
+- 🛠️ [Render Troubleshooting](RENDER_TROUBLESHOOTING.md) - Render-specific fixes
 - ❓ [Help System](HELP_SYSTEM.md) - In-game help documentation
 
 ## 🏆 Roadmap
