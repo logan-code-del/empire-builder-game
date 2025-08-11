@@ -7,7 +7,7 @@
 
 A comprehensive web-based empire building strategy game where players create their own nations, build cities, manage resources, and engage in real-time combat for territorial expansion and world domination.
 
-## 🎮 [Play Online](https://your-empire-builder.onrender.com) | 📖 [Documentation](CITIES_AND_BUILDINGS.md) | 🚀 [Deploy Guide](DEPLOYMENT.md)
+## 🎮 [Play Online](https://empire-builder.onrender.com) | 📖 [Documentation](CITIES_AND_BUILDINGS.md) | 🚀 [Deploy Guide](DEPLOYMENT.md)
 
 ![Empire Builder Screenshot](https://via.placeholder.com/800x400/1a1a1a/ffffff?text=Empire+Builder+Game+Screenshot)
 
@@ -63,12 +63,12 @@ Train and deploy diverse military forces:
 ## 🚀 Quick Start
 
 ### 🎮 Play Online (Recommended)
-**[Start Playing Now!](https://your-empire-builder.onrender.com)**
+**[Start Playing Now!](https://empire-builder.onrender.com)**
 
 ### 💻 Local Development
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/empire-builder-game.git
+git clone https://github.com/logan-code-del/empire-builder-game.git
 cd empire-builder-game
 
 # Install dependencies
@@ -137,18 +137,18 @@ See our [Deployment Guide](DEPLOYMENT.md) for detailed instructions on:
 We welcome contributions! Here's how you can help:
 
 ### 🐛 Report Bugs
-[Open an issue](https://github.com/yourusername/empire-builder-game/issues) with:
+[Open an issue](https://github.com/logan-code-del/empire-builder-game/issues) with:
 - Clear description of the problem
 - Steps to reproduce
 - Expected vs actual behavior
 
 ### 💡 Suggest Features
-Have ideas? [Start a discussion](https://github.com/yourusername/empire-builder-game/discussions)!
+Have ideas? [Start a discussion](https://github.com/logan-code-del/empire-builder-game/discussions)!
 
 ### 🔧 Development
 ```bash
 # Fork and clone
-git clone https://github.com/yourusername/empire-builder-game.git
+git clone https://github.com/logan-code-del/empire-builder-game.git
 cd empire-builder-game
 
 # Create virtual environment
@@ -225,10 +225,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 💬 Community & Support
 
-- 🐛 [Report Issues](https://github.com/yourusername/empire-builder-game/issues)
-- 💡 [Feature Requests](https://github.com/yourusername/empire-builder-game/discussions)
-- 📧 [Contact Developer](mailto:your-email@example.com)
-- ⭐ [Star this Project](https://github.com/yourusername/empire-builder-game)
+- 🐛 [Report Issues](https://github.com/logan-code-del/empire-builder-game/issues)
+- 💡 [Feature Requests](https://github.com/logan-code-del/empire-builder-game/discussions)
+- 📧 [Contact Developer](mailto:development.doom.endnote612@passfwd.com)
+- ⭐ [Star this Project](https://github.com/logan-code-del/empire-builder-game)
 
 ## ⭐ Support the Project
 
@@ -245,7 +245,7 @@ If you enjoy Empire Builder, please:
 
 **🌍 Ready to build your empire and conquer the world? 🏰**
 
-### [🎮 Start Playing Now!](https://your-empire-builder.onrender.com)
+### [🎮 Start Playing Now!](https://empire-builder.onrender.com)
 
 *Build • Expand • Conquer • Dominate*
 
