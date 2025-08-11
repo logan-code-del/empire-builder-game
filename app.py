@@ -15,7 +15,18 @@ from datetime import timedelta
 from models import GameDatabase, Empire, BattleSystem, UNIT_COSTS, UNIT_STATS
 from ai_system import ai_manager, create_ai_empires, initialize_ai_system
 from auth import auth_db, login_required, get_current_user, login_user, logout_user
-from alliance_system import alliance_db, Alliance, AllianceRole
+
+# Try to import alliance system, but don't fail if it's not available
+try:
+    from alliance_system import alliance_db, Alliance, AllianceRole
+    ALLIANCE_SYSTEM_AVAILABLE = True
+    print("✅ Alliance system loaded successfully")
+except ImportError as e:
+    print(f"⚠️ Alliance system not available: {e}")
+    ALLIANCE_SYSTEM_AVAILABLE = False
+    alliance_db = None
+    Alliance = None
+    AllianceRole = None
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'empire-builder-secret-key-2024')
@@ -227,79 +238,81 @@ def cities():
                          city_stats=CITY_STATS,
                          land_cost=LAND_COST_PER_ACRE)
 
-@app.route('/alliances')
-@login_required
-def alliances():
-    current_user = get_current_user()
-    
-    if not current_user.empire_id:
-        return redirect(url_for('create_empire'))
-    
-    # Get user's alliance if they have one
-    user_alliance = alliance_db.get_empire_alliance(current_user.empire_id)
-    user_role = None
-    
-    if user_alliance:
-        # Get user's role in the alliance
-        members = alliance_db.get_alliance_members(user_alliance.id)
-        for member in members:
-            if member['empire_id'] == current_user.empire_id:
-                user_role = member['role']
-                break
-    
-    # Get all alliances with leader names
-    all_alliances = alliance_db.get_all_alliances()
-    for alliance in all_alliances:
-        leader_empire = db.get_empire(alliance.leader_id)
-        alliance.leader_name = leader_empire.name if leader_empire else "Unknown"
-    
-    # Get pending invites for the user
-    pending_invites = alliance_db.get_empire_invites(current_user.empire_id)
-    
-    return render_template('alliances.html', 
-                         alliances=all_alliances,
-                         user_alliance=user_alliance,
-                         user_role=user_role,
-                         pending_invites=pending_invites)
+# Alliance Routes (only if alliance system is available)
+if ALLIANCE_SYSTEM_AVAILABLE:
+    @app.route('/alliances')
+    @login_required
+    def alliances():
+        current_user = get_current_user()
+        
+        if not current_user.empire_id:
+            return redirect(url_for('create_empire'))
+        
+        # Get user's alliance if they have one
+        user_alliance = alliance_db.get_empire_alliance(current_user.empire_id)
+        user_role = None
+        
+        if user_alliance:
+            # Get user's role in the alliance
+            members = alliance_db.get_alliance_members(user_alliance.id)
+            for member in members:
+                if member['empire_id'] == current_user.empire_id:
+                    user_role = member['role']
+                    break
+        
+        # Get all alliances with leader names
+        all_alliances = alliance_db.get_all_alliances()
+        for alliance in all_alliances:
+            leader_empire = db.get_empire(alliance.leader_id)
+            alliance.leader_name = leader_empire.name if leader_empire else "Unknown"
+        
+        # Get pending invites for the user
+        pending_invites = alliance_db.get_empire_invites(current_user.empire_id)
+        
+        return render_template('alliances.html', 
+                             alliances=all_alliances,
+                             user_alliance=user_alliance,
+                             user_role=user_role,
+                             pending_invites=pending_invites)
 
-@app.route('/alliance/<alliance_id>')
-@login_required
-def alliance_details(alliance_id):
-    current_user = get_current_user()
-    
-    if not current_user.empire_id:
-        return redirect(url_for('create_empire'))
-    
-    alliance = alliance_db.get_alliance(alliance_id)
-    if not alliance:
-        flash('Alliance not found', 'error')
-        return redirect(url_for('alliances'))
-    
-    # Get alliance members
-    members = alliance_db.get_alliance_members(alliance_id)
-    
-    # Check if user is a member and get their role
-    is_member = False
-    user_role = None
-    user_alliance = alliance_db.get_empire_alliance(current_user.empire_id)
-    
-    if user_alliance and user_alliance.id == alliance_id:
-        is_member = True
-        for member in members:
-            if member['empire_id'] == current_user.empire_id:
-                user_role = member['role']
-                break
-    
-    # Get current empire for contribution limits
-    empire = db.get_empire(current_user.empire_id)
-    
-    return render_template('alliance_details.html',
-                         alliance=alliance,
-                         members=members,
-                         is_member=is_member,
-                         user_role=user_role,
-                         user_alliance=user_alliance,
-                         empire=asdict(empire))
+    @app.route('/alliance/<alliance_id>')
+    @login_required
+    def alliance_details(alliance_id):
+        current_user = get_current_user()
+        
+        if not current_user.empire_id:
+            return redirect(url_for('create_empire'))
+        
+        alliance = alliance_db.get_alliance(alliance_id)
+        if not alliance:
+            flash('Alliance not found', 'error')
+            return redirect(url_for('alliances'))
+        
+        # Get alliance members
+        members = alliance_db.get_alliance_members(alliance_id)
+        
+        # Check if user is a member and get their role
+        is_member = False
+        user_role = None
+        user_alliance = alliance_db.get_empire_alliance(current_user.empire_id)
+        
+        if user_alliance and user_alliance.id == alliance_id:
+            is_member = True
+            for member in members:
+                if member['empire_id'] == current_user.empire_id:
+                    user_role = member['role']
+                    break
+        
+        # Get current empire for contribution limits
+        empire = db.get_empire(current_user.empire_id)
+        
+        return render_template('alliance_details.html',
+                             alliance=alliance,
+                             members=members,
+                             is_member=is_member,
+                             user_role=user_role,
+                             user_alliance=user_alliance,
+                             empire=asdict(empire))
 
 @app.route('/api/empire/<empire_id>')
 def get_empire_api(empire_id):
@@ -443,10 +456,10 @@ def buy_land():
     else:
         return jsonify({'error': 'Insufficient gold'}), 400
 
-# Alliance API Routes
-@app.route('/api/create_alliance', methods=['POST'])
-@login_required
-def create_alliance_api():
+    # Alliance API Routes
+    @app.route('/api/create_alliance', methods=['POST'])
+    @login_required
+    def create_alliance_api():
     current_user = get_current_user()
     
     if not current_user.empire_id:
