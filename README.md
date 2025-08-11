@@ -185,9 +185,9 @@ python app.py
 - [x] Interactive world map
 - [x] Mobile-responsive design
 - [x] Real-time multiplayer support
+- [x] User authentication system
 
 ### 🔄 In Development
-- [ ] User authentication system
 - [ ] Leaderboards and rankings
 - [ ] Alliance system
 - [ ] Tournament modes
