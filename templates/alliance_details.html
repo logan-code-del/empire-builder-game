@@ -1,0 +1,524 @@
+{% extends "base.html" %}
+
+{% block title %}{{ alliance.name }} - Alliance Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Alliance Header -->
+        <div class="empire-card p-4 mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-2">
+                        <span class="badge me-3" style="background-color: {{ alliance.alliance_color }}; font-size: 1rem;">
+                            [{{ alliance.tag }}]
+                        </span>
+                        {{ alliance.name }}
+                    </h2>
+                    <p class="text-muted mb-3">{{ alliance.description or "No description provided." }}</p>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <small class="text-muted">
+                                <i class="fas fa-users"></i> Members: {{ alliance.member_count }}<br>
+                                <i class="fas fa-fist-raised"></i> Total Power: {{ "{:,}".format(alliance.total_power) }}<br>
+                                <i class="fas fa-calendar"></i> Founded: {{ alliance.created_at[:10] }}
+                            </small>
+                        </div>
+                        <div class="col-sm-6">
+                            <small class="text-muted">
+                                <i class="fas fa-coins"></i> Treasury: {{ "{:,}".format(alliance.treasury_gold) }} Gold<br>
+                                <i class="fas fa-seedling"></i> Food: {{ "{:,}".format(alliance.treasury_food) }}<br>
+                                <i class="fas fa-hammer"></i> Iron: {{ "{:,}".format(alliance.treasury_iron) }} | Oil: {{ "{:,}".format(alliance.treasury_oil) }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    {% if is_member %}
+                        {% if user_role in ['leader', 'officer'] %}
+                        <button class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#inviteModal">
+                            <i class="fas fa-user-plus"></i> Invite Player
+                        </button>
+                        {% endif %}
+                        {% if user_role != 'leader' %}
+                        <button class="btn btn-outline-danger mb-2" onclick="leaveAlliance()">
+                            <i class="fas fa-sign-out-alt"></i> Leave Alliance
+                        </button>
+                        {% endif %}
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#contributeModal">
+                            <i class="fas fa-hand-holding-usd"></i> Contribute
+                        </button>
+                    {% elif not user_alliance and alliance.is_recruiting %}
+                    <button class="btn btn-success" onclick="requestToJoin()">
+                        <i class="fas fa-paper-plane"></i> Request to Join
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Members List -->
+            <div class="col-lg-8">
+                <div class="empire-card p-4">
+                    <h4 class="mb-3">
+                        <i class="fas fa-users"></i> Alliance Members
+                    </h4>
+                    
+                    {% if members %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Empire</th>
+                                    <th>Ruler</th>
+                                    <th>Role</th>
+                                    <th>Power</th>
+                                    <th>Land</th>
+                                    <th>Joined</th>
+                                    {% if is_member and user_role in ['leader', 'officer'] %}
+                                    <th>Actions</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in members %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ member.empire_name }}</strong>
+                                        {% if member.role == 'leader' %}
+                                        <i class="fas fa-crown text-warning ms-1" title="Alliance Leader"></i>
+                                        {% elif member.role == 'officer' %}
+                                        <i class="fas fa-star text-info ms-1" title="Alliance Officer"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ member.ruler_name }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'warning' if member.role == 'leader' else 'info' if member.role == 'officer' else 'secondary' }}">
+                                            {{ member.role.title() }}
+                                        </span>
+                                    </td>
+                                    <td>{{ "{:,}".format(member.military_power) }}</td>
+                                    <td>{{ "{:,}".format(member.land_area) }}</td>
+                                    <td>{{ member.joined_at[:10] }}</td>
+                                    {% if is_member and user_role in ['leader', 'officer'] and member.empire_id != empire.id %}
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            {% if user_role == 'leader' and member.role != 'leader' %}
+                                            <button class="btn btn-outline-primary" 
+                                                    onclick="promoteMember('{{ member.empire_id }}', '{{ member.role }}')">
+                                                <i class="fas fa-arrow-up"></i>
+                                            </button>
+                                            {% endif %}
+                                            {% if (user_role == 'leader') or (user_role == 'officer' and member.role == 'member') %}
+                                            <button class="btn btn-outline-danger" 
+                                                    onclick="kickMember('{{ member.empire_id }}', '{{ member.empire_name }}')">
+                                                <i class="fas fa-user-times"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h5>No Members</h5>
+                        <p class="text-muted">This alliance has no members yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Alliance Stats & Actions -->
+            <div class="col-lg-4">
+                <!-- Top Contributors -->
+                <div class="empire-card p-4 mb-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-trophy"></i> Top Contributors
+                    </h5>
+                    
+                    {% if members %}
+                    {% set top_contributors = members|sort(attribute='contribution_gold', reverse=true)[:5] %}
+                    {% for member in top_contributors %}
+                    {% if member.contribution_gold > 0 %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>{{ member.empire_name }}</strong>
+                            {% if loop.index == 1 %}
+                            <i class="fas fa-trophy text-warning ms-1"></i>
+                            {% elif loop.index == 2 %}
+                            <i class="fas fa-medal text-secondary ms-1"></i>
+                            {% elif loop.index == 3 %}
+                            <i class="fas fa-award text-warning ms-1"></i>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">
+                            {{ "{:,}".format(member.contribution_gold) }} Gold
+                        </small>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted">No contributions yet.</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Alliance Relations -->
+                {% if alliance_relations %}
+                <div class="empire-card p-4 mb-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-handshake"></i> Diplomatic Relations
+                    </h5>
+                    
+                    {% for relation in alliance_relations %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>{{ relation.alliance_name }}</strong>
+                        </div>
+                        <span class="badge bg-{{ 'success' if relation.relation_type == 'allied' else 'info' if relation.relation_type == 'nap' else 'danger' if relation.relation_type == 'war' else 'secondary' }}">
+                            {{ relation.relation_type.upper() }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Recent Activity -->
+                <div class="empire-card p-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-clock"></i> Recent Activity
+                    </h5>
+                    
+                    {% if alliance_messages %}
+                    {% for message in alliance_messages[:5] %}
+                    <div class="mb-3 p-2 border-start border-primary border-3">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ message.sender_name }}</strong>
+                            <small class="text-muted">{{ message.created_at[:10] }}</small>
+                        </div>
+                        <p class="mb-0 small">{{ message.message }}</p>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted">No recent activity.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Invite Player Modal -->
+{% if is_member and user_role in ['leader', 'officer'] %}
+<div class="modal fade" id="inviteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus"></i> Invite Player to Alliance
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="inviteForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="inviteEmpireName" class="form-label">Empire Name</label>
+                        <input type="text" class="form-control" id="inviteEmpireName" required
+                               placeholder="Enter empire name to invite">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="inviteMessage" class="form-label">Message (Optional)</label>
+                        <textarea class="form-control" id="inviteMessage" rows="3"
+                                  placeholder="Personal message to include with the invitation" maxlength="500"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Send Invitation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Contribute Resources Modal -->
+{% if is_member %}
+<div class="modal fade" id="contributeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-hand-holding-usd"></i> Contribute to Alliance Treasury
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="contributeForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="contributeGold" class="form-label">
+                                    <i class="fas fa-coins"></i> Gold
+                                </label>
+                                <input type="number" class="form-control" id="contributeGold" 
+                                       min="0" max="{{ empire.gold }}" value="0">
+                                <small class="text-muted">Available: {{ "{:,}".format(empire.gold) }}</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="contributeFood" class="form-label">
+                                    <i class="fas fa-seedling"></i> Food
+                                </label>
+                                <input type="number" class="form-control" id="contributeFood" 
+                                       min="0" max="{{ empire.food }}" value="0">
+                                <small class="text-muted">Available: {{ "{:,}".format(empire.food) }}</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="contributeIron" class="form-label">
+                                    <i class="fas fa-hammer"></i> Iron
+                                </label>
+                                <input type="number" class="form-control" id="contributeIron" 
+                                       min="0" max="{{ empire.iron }}" value="0">
+                                <small class="text-muted">Available: {{ "{:,}".format(empire.iron) }}</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="contributeOil" class="form-label">
+                                    <i class="fas fa-oil-can"></i> Oil
+                                </label>
+                                <input type="number" class="form-control" id="contributeOil" 
+                                       min="0" max="{{ empire.oil }}" value="0">
+                                <small class="text-muted">Available: {{ "{:,}".format(empire.oil) }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-hand-holding-usd"></i> Contribute Resources
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+// Invite Player
+{% if is_member and user_role in ['leader', 'officer'] %}
+document.getElementById('inviteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        empire_name: document.getElementById('inviteEmpireName').value,
+        message: document.getElementById('inviteMessage').value
+    };
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    submitBtn.disabled = true;
+    
+    fetch('/api/invite_to_alliance', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Invitation sent successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('inviteModal')).hide();
+            document.getElementById('inviteForm').reset();
+        } else {
+            showNotification(data.error || 'Failed to send invitation', 'error');
+        }
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred', 'error');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+});
+{% endif %}
+
+// Contribute Resources
+{% if is_member %}
+document.getElementById('contributeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const gold = parseInt(document.getElementById('contributeGold').value) || 0;
+    const food = parseInt(document.getElementById('contributeFood').value) || 0;
+    const iron = parseInt(document.getElementById('contributeIron').value) || 0;
+    const oil = parseInt(document.getElementById('contributeOil').value) || 0;
+    
+    if (gold === 0 && food === 0 && iron === 0 && oil === 0) {
+        showNotification('Please enter at least one resource to contribute', 'warning');
+        return;
+    }
+    
+    const formData = { gold, food, iron, oil };
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Contributing...';
+    submitBtn.disabled = true;
+    
+    fetch('/api/contribute_to_alliance', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Resources contributed successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('contributeModal')).hide();
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification(data.error || 'Failed to contribute resources', 'error');
+        }
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred', 'error');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+});
+{% endif %}
+
+// Alliance Management Functions
+function promoteMember(empireId, currentRole) {
+    const newRole = currentRole === 'member' ? 'officer' : 'member';
+    const action = newRole === 'officer' ? 'promote' : 'demote';
+    
+    if (confirm(`Are you sure you want to ${action} this member?`)) {
+        fetch('/api/promote_alliance_member', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                empire_id: empireId,
+                new_role: newRole
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(`Member ${action}d successfully!`, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showNotification(data.error || `Failed to ${action} member`, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred', 'error');
+        });
+    }
+}
+
+function kickMember(empireId, empireName) {
+    if (confirm(`Are you sure you want to kick ${empireName} from the alliance?`)) {
+        fetch('/api/kick_alliance_member', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                empire_id: empireId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Member kicked successfully!', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showNotification(data.error || 'Failed to kick member', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred', 'error');
+        });
+    }
+}
+
+function leaveAlliance() {
+    if (confirm('Are you sure you want to leave this alliance?')) {
+        fetch('/api/leave_alliance', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Left alliance successfully!', 'success');
+                setTimeout(() => window.location.href = '/alliances', 1500);
+            } else {
+                showNotification(data.error || 'Failed to leave alliance', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred', 'error');
+        });
+    }
+}
+
+function requestToJoin() {
+    // This would open a modal similar to the one in alliances.html
+    // For now, just redirect to the main alliances page
+    window.location.href = '/alliances';
+}
+
+// Notification function
+function showNotification(message, type) {
+    const alertClass = type === 'error' ? 'alert-danger' : `alert-${type}`;
+    const iconClass = type === 'error' ? 'fa-exclamation-triangle' : 
+                     type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+    
+    const notification = document.createElement('div');
+    notification.className = `alert ${alertClass} alert-dismissible fade show notification`;
+    notification.innerHTML = `
+        <i class="fas ${iconClass}"></i> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.getElementById('notifications').appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}

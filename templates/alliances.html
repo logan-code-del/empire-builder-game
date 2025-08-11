@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+
+{% block title %}Alliances - Empire Builder{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="empire-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">
+                    <i class="fas fa-handshake text-primary"></i>
+                    Alliance System
+                </h2>
+                
+                {% if not user_alliance %}
+                <button class="btn btn-empire" data-bs-toggle="modal" data-bs-target="#createAllianceModal">
+                    <i class="fas fa-plus"></i> Create Alliance
+                </button>
+                {% endif %}
+            </div>
+            
+            <!-- User's Alliance Status -->
+            {% if user_alliance %}
+            <div class="alert alert-info mb-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h5 class="mb-1">
+                            <span class="badge" style="background-color: {{ user_alliance.alliance_color }}">
+                                [{{ user_alliance.tag }}]
+                            </span>
+                            {{ user_alliance.name }}
+                        </h5>
+                        <p class="mb-0">{{ user_alliance.description }}</p>
+                        <small class="text-muted">
+                            Members: {{ user_alliance.member_count }} | 
+                            Total Power: {{ "{:,}".format(user_alliance.total_power) }} |
+                            Your Role: {{ user_role.title() }}
+                        </small>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <a href="{{ url_for('alliance_details', alliance_id=user_alliance.id) }}" 
+                           class="btn btn-primary">
+                            <i class="fas fa-eye"></i> View Alliance
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Pending Invites -->
+            {% if pending_invites %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-envelope text-warning"></i>
+                        Pending Invitations ({{ pending_invites|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for invite in pending_invites %}
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
+                        <div>
+                            <h6 class="mb-1">
+                                <span class="badge badge-primary">[{{ invite.alliance_tag }}]</span>
+                                {{ invite.alliance_name }}
+                            </h6>
+                            <p class="mb-1">Invited by: {{ invite.inviter_name }}</p>
+                            {% if invite.message %}
+                            <p class="mb-1 text-muted">"{{ invite.message }}"</p>
+                            {% endif %}
+                            <small class="text-muted">
+                                Expires: {{ invite.expires_at[:10] }}
+                            </small>
+                        </div>
+                        <div>
+                            <button class="btn btn-success btn-sm me-2" 
+                                    onclick="respondToInvite('{{ invite.id }}', true)">
+                                <i class="fas fa-check"></i> Accept
+                            </button>
+                            <button class="btn btn-danger btn-sm" 
+                                    onclick="respondToInvite('{{ invite.id }}', false)">
+                                <i class="fas fa-times"></i> Decline
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Alliance List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list"></i>
+                        All Alliances ({{ alliances|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if alliances %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Alliance</th>
+                                    <th>Leader</th>
+                                    <th>Members</th>
+                                    <th>Total Power</th>
+                                    <th>Recruiting</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for alliance in alliances %}
+                                <tr>
+                                    <td>
+                                        <span class="badge me-2" style="background-color: {{ alliance.alliance_color }}">
+                                            [{{ alliance.tag }}]
+                                        </span>
+                                        <strong>{{ alliance.name }}</strong>
+                                        {% if alliance.description %}
+                                        <br><small class="text-muted">{{ alliance.description[:50] }}{% if alliance.description|length > 50 %}...{% endif %}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ alliance.leader_name or 'Unknown' }}</td>
+                                    <td>{{ alliance.member_count }}</td>
+                                    <td>{{ "{:,}".format(alliance.total_power) }}</td>
+                                    <td>
+                                        {% if alliance.is_recruiting %}
+                                        <span class="badge bg-success">Open</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Closed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('alliance_details', alliance_id=alliance.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                        {% if not user_alliance and alliance.is_recruiting %}
+                                        <button class="btn btn-sm btn-success" 
+                                                onclick="requestToJoin('{{ alliance.id }}')">
+                                            <i class="fas fa-paper-plane"></i> Request
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-handshake fa-3x text-muted mb-3"></i>
+                        <h5>No Alliances Yet</h5>
+                        <p class="text-muted">Be the first to create an alliance and unite empires!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Alliance Modal -->
+<div class="modal fade" id="createAllianceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus"></i> Create New Alliance
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createAllianceForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="allianceName" class="form-label">Alliance Name</label>
+                        <input type="text" class="form-control" id="allianceName" required
+                               placeholder="Enter alliance name" maxlength="50">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="allianceTag" class="form-label">Alliance Tag</label>
+                        <input type="text" class="form-control" id="allianceTag" required
+                               placeholder="3-5 characters" maxlength="5" minlength="3">
+                        <div class="form-text">Short identifier for your alliance (e.g., WAR, PEACE, ELITE)</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="allianceDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="allianceDescription" rows="3"
+                                  placeholder="Describe your alliance's goals and values" maxlength="500"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="allianceColor" class="form-label">Alliance Color</label>
+                        <input type="color" class="form-control form-control-color" id="allianceColor" 
+                               value="#007bff" title="Choose alliance color">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="isRecruiting" checked>
+                            <label class="form-check-label" for="isRecruiting">
+                                Open for recruitment
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="minPowerRequirement" class="form-label">Minimum Power Requirement</label>
+                        <input type="number" class="form-control" id="minPowerRequirement" 
+                               value="0" min="0" placeholder="0">
+                        <div class="form-text">Minimum military power required to join (0 = no requirement)</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-empire">
+                        <i class="fas fa-plus"></i> Create Alliance
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Request to Join Modal -->
+<div class="modal fade" id="requestJoinModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-paper-plane"></i> Request to Join Alliance
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="requestJoinForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="requestMessage" class="form-label">Message (Optional)</label>
+                        <textarea class="form-control" id="requestMessage" rows="3"
+                                  placeholder="Tell them why you want to join their alliance" maxlength="500"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-paper-plane"></i> Send Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.badge {
+    font-size: 0.8em;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+}
+
+.alliance-card {
+    transition: transform 0.2s;
+}
+
+.alliance-card:hover {
+    transform: translateY(-2px);
+}
+</style>
+
+<script>
+let selectedAllianceId = null;
+
+// Create Alliance
+document.getElementById('createAllianceForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        name: document.getElementById('allianceName').value,
+        tag: document.getElementById('allianceTag').value.toUpperCase(),
+        description: document.getElementById('allianceDescription').value,
+        color: document.getElementById('allianceColor').value,
+        is_recruiting: document.getElementById('isRecruiting').checked,
+        min_power_requirement: parseInt(document.getElementById('minPowerRequirement').value) || 0
+    };
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+    submitBtn.disabled = true;
+    
+    fetch('/api/create_alliance', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Alliance created successfully!', 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification(data.error || 'Failed to create alliance', 'error');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred', 'error');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+});
+
+// Request to Join Alliance
+function requestToJoin(allianceId) {
+    selectedAllianceId = allianceId;
+    new bootstrap.Modal(document.getElementById('requestJoinModal')).show();
+}
+
+document.getElementById('requestJoinForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        alliance_id: selectedAllianceId,
+        message: document.getElementById('requestMessage').value
+    };
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    submitBtn.disabled = true;
+    
+    fetch('/api/request_alliance_join', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Join request sent successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('requestJoinModal')).hide();
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification(data.error || 'Failed to send request', 'error');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred', 'error');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+});
+
+// Respond to Invite
+function respondToInvite(inviteId, accept) {
+    const action = accept ? 'accept' : 'decline';
+    
+    fetch('/api/respond_alliance_invite', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            invite_id: inviteId,
+            accept: accept
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(`Invitation ${action}ed successfully!`, 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification(data.error || `Failed to ${action} invitation`, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred', 'error');
+    });
+}
+
+// Notification function
+function showNotification(message, type) {
+    const alertClass = type === 'error' ? 'alert-danger' : `alert-${type}`;
+    const iconClass = type === 'error' ? 'fa-exclamation-triangle' : 
+                     type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+    
+    const notification = document.createElement('div');
+    notification.className = `alert ${alertClass} alert-dismissible fade show notification`;
+    notification.innerHTML = `
+        <i class="fas ${iconClass}"></i> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.getElementById('notifications').appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Auto-uppercase alliance tag
+document.getElementById('allianceTag').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+});
+</script>
+{% endblock %}
