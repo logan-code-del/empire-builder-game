@@ -25,7 +25,7 @@ This guide will help you deploy Empire Builder to various platforms so people ca
    - Name it something like "empire-builder-game"
    - Push your code:
    ```bash
-   git remote add origin https://github.com/yourusername/empire-builder-game.git
+   git remote add origin https://github.com/logan-code-del/empire-builder-game.git
    git branch -M main
    git push -u origin main
    ```
@@ -79,7 +79,7 @@ This guide will help you deploy Empire Builder to various platforms so people ca
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/empire-builder-game.git
+   git clone https://github.com/logan-code-del/empire-builder-game.git
    cd empire-builder-game
    ```
 
