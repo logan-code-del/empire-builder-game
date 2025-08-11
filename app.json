@@ -1,10 +1,10 @@
 {
   "name": "Empire Builder - Strategic Conquest Game",
   "description": "A comprehensive web-based empire building strategy game with real-time combat, cities, and resource management.",
-  "repository": "https://github.com/yourusername/empire-builder-game",
+  "repository": "https://github.com/logan-code-del/empire-builder-game",
   "logo": "https://via.placeholder.com/120x120/2c3e50/ffffff?text=EB",
   "keywords": ["python", "flask", "game", "strategy", "real-time", "multiplayer"],
-  "website": "https://github.com/yourusername/empire-builder-game",
+  "website": "https://github.com/logan-code-del/empire-builder-game",
   "success_url": "/",
   "env": {
     "SECRET_KEY": {
