@@ -41,7 +41,19 @@
                 </div>
             </div>
             
-            {% if not session.empire_id %}
+            {% if not session.user_id %}
+            <div class="d-grid gap-2 d-md-block">
+                <a href="{{ url_for('register') }}" class="btn btn-empire btn-lg me-3">
+                    <i class="fas fa-user-plus"></i> Create Account & Empire
+                </a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg me-3">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <button class="btn btn-outline-secondary btn-lg" onclick="showGameInfo()">
+                    <i class="fas fa-info-circle"></i> How to Play
+                </button>
+            </div>
+            {% elif not session.empire_id %}
             <div class="d-grid gap-2 d-md-block">
                 <a href="{{ url_for('create_empire') }}" class="btn btn-empire btn-lg me-3">
                     <i class="fas fa-plus"></i> Create Your Empire
@@ -121,7 +133,11 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                {% if not session.empire_id %}
+                {% if not session.user_id %}
+                <a href="{{ url_for('register') }}" class="btn btn-empire">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </a>
+                {% elif not session.empire_id %}
                 <a href="{{ url_for('create_empire') }}" class="btn btn-empire">
                     <i class="fas fa-plus"></i> Create Empire
                 </a>

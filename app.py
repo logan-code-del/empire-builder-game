@@ -3,24 +3,121 @@ Empire Builder - Main Flask Application
 A comprehensive web-based empire building strategy game
 """
 
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import os
 import time
 import threading
 from dataclasses import asdict
+from datetime import timedelta
 
 # Import our models and game logic
 from models import GameDatabase, Empire, BattleSystem, UNIT_COSTS, UNIT_STATS
 from ai_system import ai_manager, create_ai_empires, initialize_ai_system
+from auth import auth_db, login_required, get_current_user, login_user, logout_user
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'empire-builder-secret-key-2024')
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Global game state
 db = GameDatabase()
 active_battles = {}  # battle_id -> battle_data
+
+# Authentication Routes
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        if request.is_json or request.content_type == 'application/json':
+            data = request.get_json()
+            username = data.get('username')
+            password = data.get('password')
+            remember_me = data.get('remember_me', False)
+        else:
+            username = request.form.get('username')
+            password = request.form.get('password')
+            remember_me = request.form.get('remember_me') == 'on'
+        
+        if not username or not password:
+            if request.is_json:
+                return jsonify({'error': 'Username and password are required'}), 400
+            flash('Username and password are required', 'error')
+            return render_template('login.html')
+        
+        user = auth_db.authenticate_user(username, password)
+        if user:
+            login_user(user, remember_me)
+            
+            if request.is_json:
+                redirect_url = url_for('dashboard') if user.empire_id else url_for('create_empire')
+                return jsonify({'success': True, 'redirect': redirect_url})
+            
+            return redirect(url_for('dashboard') if user.empire_id else url_for('create_empire'))
+        else:
+            if request.is_json:
+                return jsonify({'error': 'Invalid username or password'}), 401
+            flash('Invalid username or password', 'error')
+    
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        if request.is_json or request.content_type == 'application/json':
+            data = request.get_json()
+            username = data.get('username')
+            email = data.get('email')
+            password = data.get('password')
+            confirm_password = data.get('confirm_password')
+        else:
+            username = request.form.get('username')
+            email = request.form.get('email')
+            password = request.form.get('password')
+            confirm_password = request.form.get('confirm_password')
+        
+        # Validation
+        if not all([username, email, password, confirm_password]):
+            error = 'All fields are required'
+            if request.is_json:
+                return jsonify({'error': error}), 400
+            flash(error, 'error')
+            return render_template('register.html')
+        
+        if password != confirm_password:
+            error = 'Passwords do not match'
+            if request.is_json:
+                return jsonify({'error': error}), 400
+            flash(error, 'error')
+            return render_template('register.html')
+        
+        if len(password) < 6:
+            error = 'Password must be at least 6 characters long'
+            if request.is_json:
+                return jsonify({'error': error}), 400
+            flash(error, 'error')
+            return render_template('register.html')
+        
+        # Create user
+        user_id = auth_db.create_user(username, email, password)
+        if user_id:
+            if request.is_json:
+                return jsonify({'success': True, 'message': 'Account created successfully'})
+            flash('Account created successfully! Please log in.', 'success')
+            return redirect(url_for('login'))
+        else:
+            error = 'Username or email already exists'
+            if request.is_json:
+                return jsonify({'error': error}), 400
+            flash(error, 'error')
+    
+    return render_template('register.html')
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    flash('You have been logged out successfully', 'info')
+    return redirect(url_for('index'))
 
 # Routes
 @app.route('/')
@@ -28,7 +125,14 @@ def index():
     return render_template('index.html')
 
 @app.route('/create_empire', methods=['GET', 'POST'])
+@login_required
 def create_empire():
+    current_user = get_current_user()
+    
+    # Check if user already has an empire
+    if current_user.empire_id:
+        return redirect(url_for('dashboard'))
+    
     if request.method == 'POST':
         data = request.json
         empire_id = db.create_empire(
@@ -37,6 +141,9 @@ def create_empire():
             data['lat'], 
             data['lng']
         )
+        
+        # Link the empire to the user
+        auth_db.link_user_to_empire(current_user.id, empire_id)
         session['empire_id'] = empire_id
         
         # Create AI opponents if this is the first human player
@@ -53,38 +160,50 @@ def create_empire():
     return render_template('create_empire.html')
 
 @app.route('/dashboard')
+@login_required
 def dashboard():
-    if 'empire_id' not in session:
-        return redirect(url_for('index'))
+    current_user = get_current_user()
     
-    empire = db.get_empire(session['empire_id'])
+    if not current_user.empire_id:
+        return redirect(url_for('create_empire'))
+    
+    empire = db.get_empire(current_user.empire_id)
     if not empire:
-        return redirect(url_for('index'))
+        return redirect(url_for('create_empire'))
     
-    return render_template('dashboard.html', empire=asdict(empire))
+    return render_template('dashboard.html', empire=asdict(empire), user=current_user)
 
 @app.route('/world_map')
+@login_required
 def world_map():
-    if 'empire_id' not in session:
-        return redirect(url_for('index'))
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return redirect(url_for('create_empire'))
     
     empires = db.get_all_empires()
     return render_template('world_map.html', empires=[asdict(e) for e in empires])
 
 @app.route('/military')
+@login_required
 def military():
-    if 'empire_id' not in session:
-        return redirect(url_for('index'))
+    current_user = get_current_user()
     
-    empire = db.get_empire(session['empire_id'])
+    if not current_user.empire_id:
+        return redirect(url_for('create_empire'))
+    
+    empire = db.get_empire(current_user.empire_id)
     return render_template('military.html', empire=asdict(empire), unit_costs=UNIT_COSTS, unit_stats=UNIT_STATS)
 
 @app.route('/cities')
+@login_required
 def cities():
-    if 'empire_id' not in session:
-        return redirect(url_for('index'))
+    current_user = get_current_user()
     
-    empire = db.get_empire(session['empire_id'])
+    if not current_user.empire_id:
+        return redirect(url_for('create_empire'))
+    
+    empire = db.get_empire(current_user.empire_id)
     from models import BUILDING_TYPES, CITY_COSTS, CITY_STATS, LAND_COST_PER_ACRE
     
     return render_template('cities.html', 
@@ -102,11 +221,14 @@ def get_empire_api(empire_id):
     return jsonify({'error': 'Empire not found'}), 404
 
 @app.route('/api/train_units', methods=['POST'])
+@login_required
 def train_units():
-    if 'empire_id' not in session:
-        return jsonify({'error': 'Not logged in'}), 401
+    current_user = get_current_user()
     
-    empire = db.get_empire(session['empire_id'])
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    empire = db.get_empire(current_user.empire_id)
     data = request.json
     
     total_cost = {'gold': 0, 'iron': 0, 'oil': 0, 'food': 0}
@@ -135,12 +257,15 @@ def train_units():
     return jsonify({'success': True, 'empire': asdict(empire)})
 
 @app.route('/api/attack', methods=['POST'])
+@login_required
 def attack_empire():
-    if 'empire_id' not in session:
-        return jsonify({'error': 'Not logged in'}), 401
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
     
     data = request.json
-    attacker = db.get_empire(session['empire_id'])
+    attacker = db.get_empire(current_user.empire_id)
     defender = db.get_empire(data['target_id'])
     attacking_units = data['units']
     
@@ -166,11 +291,14 @@ def attack_empire():
     return jsonify(battle_result)
 
 @app.route('/api/build_city', methods=['POST'])
+@login_required
 def build_city():
-    if 'empire_id' not in session:
-        return jsonify({'error': 'Not logged in'}), 401
+    current_user = get_current_user()
     
-    empire = db.get_empire(session['empire_id'])
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    empire = db.get_empire(current_user.empire_id)
     data = request.json
     
     city_name = data.get('name', '')
@@ -185,11 +313,14 @@ def build_city():
         return jsonify({'error': 'Cannot build city - insufficient resources'}), 400
 
 @app.route('/api/build_building', methods=['POST'])
+@login_required
 def build_building():
-    if 'empire_id' not in session:
-        return jsonify({'error': 'Not logged in'}), 401
+    current_user = get_current_user()
     
-    empire = db.get_empire(session['empire_id'])
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    empire = db.get_empire(current_user.empire_id)
     data = request.json
     
     city_id = data.get('city_id', '')
@@ -204,11 +335,14 @@ def build_building():
         return jsonify({'error': 'Cannot build - check requirements'}), 400
 
 @app.route('/api/buy_land', methods=['POST'])
+@login_required
 def buy_land():
-    if 'empire_id' not in session:
-        return jsonify({'error': 'Not logged in'}), 401
+    current_user = get_current_user()
     
-    empire = db.get_empire(session['empire_id'])
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    empire = db.get_empire(current_user.empire_id)
     data = request.json
     
     acres = data.get('acres', 0)
@@ -224,20 +358,22 @@ def buy_land():
 # Socket.IO events for real-time features
 @socketio.on('connect')
 def on_connect():
-    if 'empire_id' in session:
-        join_room(f'empire_{session["empire_id"]}')
-        emit('connected', {'status': 'Connected to Empire Builder'})
+    current_user = get_current_user()
+    if current_user and current_user.empire_id:
+        join_room(f'empire_{current_user.empire_id}')
+        emit('connected', {'status': 'Connected to Empire Builder', 'username': current_user.username})
 
 @socketio.on('disconnect')
 def on_disconnect():
-    if 'empire_id' in session:
-        leave_room(f'empire_{session["empire_id"]}')
+    current_user = get_current_user()
+    if current_user and current_user.empire_id:
+        leave_room(f'empire_{current_user.empire_id}')
 
 @socketio.on('join_empire')
 def on_join_empire(data):
-    empire_id = data['empire_id']
-    join_room(f'empire_{empire_id}')
-    session['empire_id'] = empire_id
+    current_user = get_current_user()
+    if current_user and current_user.empire_id:
+        join_room(f'empire_{current_user.empire_id}')
 
 # Background tasks for AI and resource generation
 def background_tasks():

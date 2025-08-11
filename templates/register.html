@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Empire Builder{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="empire-card p-5">
+            <div class="text-center mb-4">
+                <h2 class="display-6">
+                    <i class="fas fa-user-plus text-success"></i>
+                    Create Your Account
+                </h2>
+                <p class="text-muted">Join thousands of rulers and build your empire today!</p>
+            </div>
+            
+            <!-- Registration Form -->
+            <form id="registerForm" method="POST">
+                <div class="mb-3">
+                    <label for="username" class="form-label">
+                        <i class="fas fa-user"></i> Username
+                    </label>
+                    <input type="text" class="form-control" id="username" name="username" required
+                           placeholder="Choose a unique username" minlength="3" maxlength="20">
+                    <div class="form-text">3-20 characters, letters, numbers, and underscores only</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label">
+                        <i class="fas fa-envelope"></i> Email Address
+                    </label>
+                    <input type="email" class="form-control" id="email" name="email" required
+                           placeholder="Enter your email address">
+                    <div class="form-text">We'll use this to recover your account if needed</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="password" name="password" required
+                               placeholder="Create a strong password" minlength="6">
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="form-text">At least 6 characters long</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="confirm_password" class="form-label">
+                        <i class="fas fa-lock"></i> Confirm Password
+                    </label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required
+                               placeholder="Confirm your password">
+                        <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Password Strength Indicator -->
+                <div class="mb-3">
+                    <div class="password-strength">
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar" id="passwordStrengthBar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <small id="passwordStrengthText" class="form-text"></small>
+                    </div>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="agree_terms" name="agree_terms" required>
+                    <label class="form-check-label" for="agree_terms">
+                        I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of Service</a>
+                        and <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+                    </label>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-user-plus"></i> Create My Empire Account
+                    </button>
+                </div>
+            </form>
+            
+            <hr class="my-4">
+            
+            <div class="text-center">
+                <p class="mb-2">Already have an account?</p>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login to Existing Account
+                </a>
+            </div>
+            
+            <!-- Benefits Info -->
+            <div class="alert alert-success mt-4">
+                <i class="fas fa-crown"></i>
+                <strong>Account Benefits:</strong><br>
+                • Save your empire progress<br>
+                • Compete in global leaderboards<br>
+                • Access to premium features<br>
+                • Cross-device synchronization
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error/Success Messages -->
+<div id="messageContainer"></div>
+
+<!-- Terms of Service Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Terms of Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Acceptance of Terms</h6>
+                <p>By creating an account and playing Empire Builder, you agree to these terms.</p>
+                
+                <h6>2. Fair Play</h6>
+                <p>Players must engage in fair play. Cheating, exploiting bugs, or using automated tools is prohibited.</p>
+                
+                <h6>3. Account Responsibility</h6>
+                <p>You are responsible for maintaining the security of your account and password.</p>
+                
+                <h6>4. Content and Conduct</h6>
+                <p>Players must maintain respectful conduct. Harassment, offensive language, or inappropriate content is not allowed.</p>
+                
+                <h6>5. Game Changes</h6>
+                <p>We reserve the right to modify game mechanics, features, or these terms at any time.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Privacy Policy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Privacy Policy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Information We Collect</h6>
+                <p>We collect your username, email address, and game progress data.</p>
+                
+                <h6>How We Use Your Information</h6>
+                <p>Your information is used to provide game services, save progress, and communicate important updates.</p>
+                
+                <h6>Data Security</h6>
+                <p>We use industry-standard security measures to protect your data.</p>
+                
+                <h6>Data Sharing</h6>
+                <p>We do not sell or share your personal information with third parties.</p>
+                
+                <h6>Contact Us</h6>
+                <p>If you have questions about this privacy policy, please contact us through the game's help system.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.empire-card {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-control:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.input-group .btn-outline-secondary {
+    border-color: #ced4da;
+}
+
+.input-group .btn-outline-secondary:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.password-strength .progress-bar {
+    transition: width 0.3s ease;
+}
+
+.password-strength .progress-bar.weak {
+    background-color: #dc3545;
+}
+
+.password-strength .progress-bar.medium {
+    background-color: #ffc107;
+}
+
+.password-strength .progress-bar.strong {
+    background-color: #28a745;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const registerForm = document.getElementById('registerForm');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const togglePassword = document.getElementById('togglePassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const usernameInput = document.getElementById('username');
+    
+    // Toggle password visibility
+    togglePassword.addEventListener('click', function() {
+        togglePasswordVisibility(passwordInput, this);
+    });
+    
+    toggleConfirmPassword.addEventListener('click', function() {
+        togglePasswordVisibility(confirmPasswordInput, this);
+    });
+    
+    function togglePasswordVisibility(input, button) {
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        
+        const icon = button.querySelector('i');
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    }
+    
+    // Username validation
+    usernameInput.addEventListener('input', function() {
+        const username = this.value;
+        const regex = /^[a-zA-Z0-9_]+$/;
+        
+        if (username.length > 0 && !regex.test(username)) {
+            this.setCustomValidity('Username can only contain letters, numbers, and underscores');
+        } else if (username.length < 3) {
+            this.setCustomValidity('Username must be at least 3 characters long');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+    
+    // Password strength checker
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        const strength = calculatePasswordStrength(password);
+        updatePasswordStrengthIndicator(strength);
+    });
+    
+    // Password confirmation validation
+    confirmPasswordInput.addEventListener('input', function() {
+        if (this.value !== passwordInput.value) {
+            this.setCustomValidity('Passwords do not match');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+    
+    function calculatePasswordStrength(password) {
+        let score = 0;
+        
+        if (password.length >= 6) score += 1;
+        if (password.length >= 10) score += 1;
+        if (/[a-z]/.test(password)) score += 1;
+        if (/[A-Z]/.test(password)) score += 1;
+        if (/[0-9]/.test(password)) score += 1;
+        if (/[^A-Za-z0-9]/.test(password)) score += 1;
+        
+        return score;
+    }
+    
+    function updatePasswordStrengthIndicator(strength) {
+        const bar = document.getElementById('passwordStrengthBar');
+        const text = document.getElementById('passwordStrengthText');
+        
+        bar.className = 'progress-bar';
+        
+        if (strength <= 2) {
+            bar.style.width = '33%';
+            bar.classList.add('weak');
+            text.textContent = 'Weak password';
+            text.className = 'form-text text-danger';
+        } else if (strength <= 4) {
+            bar.style.width = '66%';
+            bar.classList.add('medium');
+            text.textContent = 'Medium strength password';
+            text.className = 'form-text text-warning';
+        } else {
+            bar.style.width = '100%';
+            bar.classList.add('strong');
+            text.textContent = 'Strong password';
+            text.className = 'form-text text-success';
+        }
+    }
+    
+    // Handle form submission
+    registerForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Final validation
+        if (passwordInput.value !== confirmPasswordInput.value) {
+            showMessage('Passwords do not match!', 'danger');
+            return;
+        }
+        
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+        submitBtn.disabled = true;
+        
+        fetch('{{ url_for("register") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMessage('Account created successfully! Redirecting to login...', 'success');
+                setTimeout(() => {
+                    window.location.href = '{{ url_for("login") }}';
+                }, 2000);
+            } else {
+                showMessage(data.error || 'Registration failed. Please try again.', 'danger');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Registration error:', error);
+            showMessage('An error occurred. Please try again.', 'danger');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+    });
+    
+    function showMessage(message, type) {
+        const messageContainer = document.getElementById('messageContainer');
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show notification`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        messageContainer.appendChild(alertDiv);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+    
+    // Focus on username field
+    usernameInput.focus();
+});
+</script>
+{% endblock %}
