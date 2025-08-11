@@ -15,6 +15,7 @@ from datetime import timedelta
 from models import GameDatabase, Empire, BattleSystem, UNIT_COSTS, UNIT_STATS
 from ai_system import ai_manager, create_ai_empires, initialize_ai_system
 from auth import auth_db, login_required, get_current_user, login_user, logout_user
+from alliance_system import alliance_db, Alliance, AllianceRole
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'empire-builder-secret-key-2024')
@@ -226,6 +227,80 @@ def cities():
                          city_stats=CITY_STATS,
                          land_cost=LAND_COST_PER_ACRE)
 
+@app.route('/alliances')
+@login_required
+def alliances():
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return redirect(url_for('create_empire'))
+    
+    # Get user's alliance if they have one
+    user_alliance = alliance_db.get_empire_alliance(current_user.empire_id)
+    user_role = None
+    
+    if user_alliance:
+        # Get user's role in the alliance
+        members = alliance_db.get_alliance_members(user_alliance.id)
+        for member in members:
+            if member['empire_id'] == current_user.empire_id:
+                user_role = member['role']
+                break
+    
+    # Get all alliances with leader names
+    all_alliances = alliance_db.get_all_alliances()
+    for alliance in all_alliances:
+        leader_empire = db.get_empire(alliance.leader_id)
+        alliance.leader_name = leader_empire.name if leader_empire else "Unknown"
+    
+    # Get pending invites for the user
+    pending_invites = alliance_db.get_empire_invites(current_user.empire_id)
+    
+    return render_template('alliances.html', 
+                         alliances=all_alliances,
+                         user_alliance=user_alliance,
+                         user_role=user_role,
+                         pending_invites=pending_invites)
+
+@app.route('/alliance/<alliance_id>')
+@login_required
+def alliance_details(alliance_id):
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return redirect(url_for('create_empire'))
+    
+    alliance = alliance_db.get_alliance(alliance_id)
+    if not alliance:
+        flash('Alliance not found', 'error')
+        return redirect(url_for('alliances'))
+    
+    # Get alliance members
+    members = alliance_db.get_alliance_members(alliance_id)
+    
+    # Check if user is a member and get their role
+    is_member = False
+    user_role = None
+    user_alliance = alliance_db.get_empire_alliance(current_user.empire_id)
+    
+    if user_alliance and user_alliance.id == alliance_id:
+        is_member = True
+        for member in members:
+            if member['empire_id'] == current_user.empire_id:
+                user_role = member['role']
+                break
+    
+    # Get current empire for contribution limits
+    empire = db.get_empire(current_user.empire_id)
+    
+    return render_template('alliance_details.html',
+                         alliance=alliance,
+                         members=members,
+                         is_member=is_member,
+                         user_role=user_role,
+                         user_alliance=user_alliance,
+                         empire=asdict(empire))
+
 @app.route('/api/empire/<empire_id>')
 def get_empire_api(empire_id):
     empire = db.get_empire(empire_id)
@@ -367,6 +442,239 @@ def buy_land():
         return jsonify({'success': True, 'empire': asdict(empire)})
     else:
         return jsonify({'error': 'Insufficient gold'}), 400
+
+# Alliance API Routes
+@app.route('/api/create_alliance', methods=['POST'])
+@login_required
+def create_alliance_api():
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    # Check if user is already in an alliance
+    existing_alliance = alliance_db.get_empire_alliance(current_user.empire_id)
+    if existing_alliance:
+        return jsonify({'error': 'You are already in an alliance'}), 400
+    
+    data = request.json
+    name = data.get('name', '').strip()
+    tag = data.get('tag', '').strip().upper()
+    description = data.get('description', '').strip()
+    color = data.get('color', '#007bff')
+    
+    if not name or not tag:
+        return jsonify({'error': 'Alliance name and tag are required'}), 400
+    
+    if len(tag) < 3 or len(tag) > 5:
+        return jsonify({'error': 'Alliance tag must be 3-5 characters'}), 400
+    
+    alliance_id = alliance_db.create_alliance(name, tag, description, current_user.empire_id, color)
+    
+    if alliance_id:
+        return jsonify({'success': True, 'alliance_id': alliance_id})
+    else:
+        return jsonify({'error': 'Alliance name or tag already exists'}), 400
+
+@app.route('/api/invite_to_alliance', methods=['POST'])
+@login_required
+def invite_to_alliance_api():
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    # Check if user has permission to invite
+    user_alliance = alliance_db.get_empire_alliance(current_user.empire_id)
+    if not user_alliance:
+        return jsonify({'error': 'You are not in an alliance'}), 400
+    
+    members = alliance_db.get_alliance_members(user_alliance.id)
+    user_role = None
+    for member in members:
+        if member['empire_id'] == current_user.empire_id:
+            user_role = member['role']
+            break
+    
+    if user_role not in ['leader', 'officer']:
+        return jsonify({'error': 'Only leaders and officers can invite members'}), 403
+    
+    data = request.json
+    empire_name = data.get('empire_name', '').strip()
+    message = data.get('message', '').strip()
+    
+    if not empire_name:
+        return jsonify({'error': 'Empire name is required'}), 400
+    
+    # Find the empire by name
+    target_empire = None
+    all_empires = db.get_all_empires()
+    for empire in all_empires:
+        if empire.name.lower() == empire_name.lower():
+            target_empire = empire
+            break
+    
+    if not target_empire:
+        return jsonify({'error': 'Empire not found'}), 404
+    
+    invite_id = alliance_db.invite_to_alliance(user_alliance.id, target_empire.id, 
+                                              current_user.empire_id, message)
+    
+    if invite_id:
+        return jsonify({'success': True, 'invite_id': invite_id})
+    else:
+        return jsonify({'error': 'Failed to send invitation (empire may already be in an alliance or invitation already exists)'}), 400
+
+@app.route('/api/respond_alliance_invite', methods=['POST'])
+@login_required
+def respond_alliance_invite_api():
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    data = request.json
+    invite_id = data.get('invite_id')
+    accept = data.get('accept', False)
+    
+    if not invite_id:
+        return jsonify({'error': 'Invite ID is required'}), 400
+    
+    success = alliance_db.respond_to_invite(invite_id, accept)
+    
+    if success:
+        action = 'accepted' if accept else 'declined'
+        return jsonify({'success': True, 'message': f'Invitation {action} successfully'})
+    else:
+        return jsonify({'error': 'Failed to respond to invitation (may be expired or invalid)'}), 400
+
+@app.route('/api/leave_alliance', methods=['POST'])
+@login_required
+def leave_alliance_api():
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    success = alliance_db.leave_alliance(current_user.empire_id)
+    
+    if success:
+        return jsonify({'success': True, 'message': 'Left alliance successfully'})
+    else:
+        return jsonify({'error': 'Failed to leave alliance (leaders must transfer leadership first)'}), 400
+
+@app.route('/api/kick_alliance_member', methods=['POST'])
+@login_required
+def kick_alliance_member_api():
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    user_alliance = alliance_db.get_empire_alliance(current_user.empire_id)
+    if not user_alliance:
+        return jsonify({'error': 'You are not in an alliance'}), 400
+    
+    data = request.json
+    target_empire_id = data.get('empire_id')
+    
+    if not target_empire_id:
+        return jsonify({'error': 'Empire ID is required'}), 400
+    
+    success = alliance_db.kick_member(user_alliance.id, target_empire_id, current_user.empire_id)
+    
+    if success:
+        return jsonify({'success': True, 'message': 'Member kicked successfully'})
+    else:
+        return jsonify({'error': 'Failed to kick member (insufficient permissions)'}), 403
+
+@app.route('/api/promote_alliance_member', methods=['POST'])
+@login_required
+def promote_alliance_member_api():
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    user_alliance = alliance_db.get_empire_alliance(current_user.empire_id)
+    if not user_alliance:
+        return jsonify({'error': 'You are not in an alliance'}), 400
+    
+    data = request.json
+    target_empire_id = data.get('empire_id')
+    new_role = data.get('new_role')
+    
+    if not target_empire_id or not new_role:
+        return jsonify({'error': 'Empire ID and new role are required'}), 400
+    
+    try:
+        role_enum = AllianceRole(new_role)
+    except ValueError:
+        return jsonify({'error': 'Invalid role'}), 400
+    
+    success = alliance_db.promote_member(user_alliance.id, target_empire_id, 
+                                        current_user.empire_id, role_enum)
+    
+    if success:
+        return jsonify({'success': True, 'message': 'Member role updated successfully'})
+    else:
+        return jsonify({'error': 'Failed to update member role (insufficient permissions)'}), 403
+
+@app.route('/api/contribute_to_alliance', methods=['POST'])
+@login_required
+def contribute_to_alliance_api():
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    user_alliance = alliance_db.get_empire_alliance(current_user.empire_id)
+    if not user_alliance:
+        return jsonify({'error': 'You are not in an alliance'}), 400
+    
+    empire = db.get_empire(current_user.empire_id)
+    if not empire:
+        return jsonify({'error': 'Empire not found'}), 400
+    
+    data = request.json
+    gold = data.get('gold', 0)
+    food = data.get('food', 0)
+    iron = data.get('iron', 0)
+    oil = data.get('oil', 0)
+    
+    # Validate contribution amounts
+    if gold < 0 or food < 0 or iron < 0 or oil < 0:
+        return jsonify({'error': 'Contribution amounts cannot be negative'}), 400
+    
+    if gold > empire.gold or food > empire.food or iron > empire.iron or oil > empire.oil:
+        return jsonify({'error': 'Insufficient resources'}), 400
+    
+    if gold == 0 and food == 0 and iron == 0 and oil == 0:
+        return jsonify({'error': 'Must contribute at least one resource'}), 400
+    
+    # Deduct resources from empire
+    empire.gold -= gold
+    empire.food -= food
+    empire.iron -= iron
+    empire.oil -= oil
+    
+    # Update empire in database
+    db.update_empire(empire)
+    
+    # Add to alliance treasury
+    success = alliance_db.contribute_to_treasury(user_alliance.id, current_user.empire_id, 
+                                                gold, food, iron, oil)
+    
+    if success:
+        return jsonify({'success': True, 'message': 'Resources contributed successfully'})
+    else:
+        # Rollback empire resources if alliance contribution failed
+        empire.gold += gold
+        empire.food += food
+        empire.iron += iron
+        empire.oil += oil
+        db.update_empire(empire)
+        return jsonify({'error': 'Failed to contribute resources'}), 500
 
 # Error handlers for JSON requests
 @app.errorhandler(500)
