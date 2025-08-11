@@ -96,35 +96,53 @@ class AuthDatabase:
     
     def create_user(self, username: str, email: str, password: str) -> Optional[str]:
         """Create a new user account"""
-        conn = sqlite3.connect('empire_game.db')
-        cursor = conn.cursor()
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                conn = sqlite3.connect('empire_game.db', timeout=10.0)
+                cursor = conn.cursor()
+                
+                try:
+                    # Check if username or email already exists
+                    cursor.execute('SELECT id FROM users WHERE username = ? OR email = ?', (username, email))
+                    if cursor.fetchone():
+                        conn.close()
+                        return None  # User already exists
+                    
+                    # Create user
+                    user_id = str(uuid.uuid4())
+                    password_hash, salt = self.hash_password(password)
+                    
+                    cursor.execute('''
+                        INSERT INTO users (id, username, email, password_hash, salt, created_at)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    ''', (
+                        user_id, username, email, password_hash, salt,
+                        datetime.now().isoformat()
+                    ))
+                    
+                    conn.commit()
+                    conn.close()
+                    return user_id
+                    
+                except sqlite3.IntegrityError:
+                    conn.close()
+                    return None
+                except Exception as e:
+                    conn.close()
+                    if attempt == max_retries - 1:
+                        raise e
+                    continue
+                    
+            except sqlite3.OperationalError as e:
+                if "database is locked" in str(e) and attempt < max_retries - 1:
+                    import time
+                    time.sleep(0.1 * (attempt + 1))  # Exponential backoff
+                    continue
+                else:
+                    raise e
         
-        try:
-            # Check if username or email already exists
-            cursor.execute('SELECT id FROM users WHERE username = ? OR email = ?', (username, email))
-            if cursor.fetchone():
-                conn.close()
-                return None  # User already exists
-            
-            # Create user
-            user_id = str(uuid.uuid4())
-            password_hash, salt = self.hash_password(password)
-            
-            cursor.execute('''
-                INSERT INTO users (id, username, email, password_hash, salt, created_at)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ''', (
-                user_id, username, email, password_hash, salt,
-                datetime.now().isoformat()
-            ))
-            
-            conn.commit()
-            conn.close()
-            return user_id
-            
-        except sqlite3.IntegrityError:
-            conn.close()
-            return None
+        return None
     
     def authenticate_user(self, username: str, password: str) -> Optional[User]:
         """Authenticate user login"""

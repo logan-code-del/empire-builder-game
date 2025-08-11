@@ -324,7 +324,14 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        const formData = new FormData(this);
+        // Collect form data as JSON
+        const formData = {
+            username: document.getElementById('username').value,
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+            confirm_password: document.getElementById('confirm_password').value
+        };
+        
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
         
@@ -334,7 +341,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         fetch('{{ url_for("register") }}', {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
         })
         .then(response => response.json())
         .then(data => {

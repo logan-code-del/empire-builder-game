@@ -19,6 +19,12 @@ from auth import auth_db, login_required, get_current_user, login_user, logout_u
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'empire-builder-secret-key-2024')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
+
+# Configure logging
+import logging
+logging.basicConfig(level=logging.INFO)
+app.logger.setLevel(logging.INFO)
+
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Global game state
@@ -99,16 +105,23 @@ def register():
             return render_template('register.html')
         
         # Create user
-        user_id = auth_db.create_user(username, email, password)
-        if user_id:
+        try:
+            user_id = auth_db.create_user(username, email, password)
+            
+            if user_id:
+                if request.is_json:
+                    return jsonify({'success': True, 'message': 'Account created successfully'})
+                flash('Account created successfully! Please log in.', 'success')
+                return redirect(url_for('login'))
+            else:
+                error = 'Username or email already exists'
+                if request.is_json:
+                    return jsonify({'error': error}), 400
+                flash(error, 'error')
+        except Exception as e:
+            error = f'Registration failed: {str(e)}'
             if request.is_json:
-                return jsonify({'success': True, 'message': 'Account created successfully'})
-            flash('Account created successfully! Please log in.', 'success')
-            return redirect(url_for('login'))
-        else:
-            error = 'Username or email already exists'
-            if request.is_json:
-                return jsonify({'error': error}), 400
+                return jsonify({'error': error}), 500
             flash(error, 'error')
     
     return render_template('register.html')
@@ -354,6 +367,25 @@ def buy_land():
         return jsonify({'success': True, 'empire': asdict(empire)})
     else:
         return jsonify({'error': 'Insufficient gold'}), 400
+
+# Error handlers for JSON requests
+@app.errorhandler(500)
+def handle_internal_error(error):
+    if request.is_json or request.content_type == 'application/json':
+        return jsonify({'error': 'Internal server error'}), 500
+    return render_template('error.html', error='Internal server error'), 500
+
+@app.errorhandler(404)
+def handle_not_found(error):
+    if request.is_json or request.content_type == 'application/json':
+        return jsonify({'error': 'Not found'}), 404
+    return render_template('error.html', error='Page not found'), 404
+
+@app.errorhandler(400)
+def handle_bad_request(error):
+    if request.is_json or request.content_type == 'application/json':
+        return jsonify({'error': 'Bad request'}), 400
+    return render_template('error.html', error='Bad request'), 400
 
 # Socket.IO events for real-time features
 @socketio.on('connect')
