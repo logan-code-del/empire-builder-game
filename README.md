@@ -186,10 +186,10 @@ python app.py
 - [x] Mobile-responsive design
 - [x] Real-time multiplayer support
 - [x] User authentication system
+- [x] Alliance system
 
 ### 🔄 In Development
 - [ ] Leaderboards and rankings
-- [ ] Alliance system
 - [ ] Tournament modes
 
 ### 💭 Future Plans
