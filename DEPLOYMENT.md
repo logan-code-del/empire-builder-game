@@ -38,7 +38,7 @@ This guide will help you deploy Empire Builder to various platforms so people ca
      - **Name**: empire-builder
      - **Environment**: Python 3
      - **Build Command**: `pip install -r requirements.txt`
-     - **Start Command**: `gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT wsgi:application`
+     - **Start Command**: `python app.py`
    - Click "Create Web Service"
 
 4. **Environment Variables** (Automatically configured)

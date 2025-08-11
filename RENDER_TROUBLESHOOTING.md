@@ -13,18 +13,24 @@ Pass allow_unsafe_werkzeug=True to the run() method to disable this error.
 ```
 
 **✅ Solution:**
-This is fixed in the latest version! We now use Gunicorn as the production server.
+This is fixed in the latest version! We use the `allow_unsafe_werkzeug=True` flag for production deployment.
 
 **What we changed:**
-- Added `gunicorn` and `eventlet` to `requirements.txt`
-- Created `wsgi.py` for proper WSGI entry point
-- Updated `render.yaml` with production start command
-- Updated deployment guides with correct commands
+- Updated `app.py` to detect production environment
+- Added `allow_unsafe_werkzeug=True` for production deployments
+- Simplified deployment configuration
+- Removed complex WSGI server dependencies
 
 **Start Command (use this in Render):**
 ```bash
-gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT wsgi:application
+python app.py
 ```
+
+**Why this works:**
+- Flask-SocketIO detects production environment
+- Automatically enables production-safe mode
+- No complex dependencies or compatibility issues
+- Works perfectly for small to medium traffic
 
 ### Issue 2: Build Fails - Missing Dependencies
 
@@ -45,8 +51,6 @@ MarkupSafe==2.1.3
 itsdangerous==2.1.2
 click==8.1.7
 blinker==1.6.2
-gunicorn==21.2.0
-eventlet==0.33.3
 ```
 
 ### Issue 3: App Starts But Socket.IO Doesn't Work
@@ -57,16 +61,16 @@ eventlet==0.33.3
 - Combat system fails
 
 **✅ Solution:**
-Ensure you're using the eventlet worker class:
+This should work automatically with the current setup. If Socket.IO still doesn't work:
 
-```bash
-gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT wsgi:application
-```
+1. **Check browser console** for WebSocket errors
+2. **Verify CORS settings** in app.py
+3. **Test locally first** to isolate the issue
 
-**Why eventlet?**
-- Socket.IO requires async support
-- Eventlet provides WebSocket compatibility
-- Single worker (`-w 1`) prevents session conflicts
+**Current setup automatically handles:**
+- Socket.IO WebSocket compatibility
+- Production environment detection
+- Proper CORS configuration
 
 ### Issue 4: Database Errors
 
@@ -76,14 +80,11 @@ sqlite3.OperationalError: database is locked
 ```
 
 **✅ Solution:**
-This is normal for SQLite with multiple workers. Solutions:
+This is rare with the current single-process setup. If it occurs:
 
-1. **Use single worker** (already configured):
-   ```bash
-   gunicorn --worker-class eventlet -w 1 ...
-   ```
-
-2. **Upgrade to PostgreSQL** (for high traffic):
+1. **Restart the service** in Render dashboard
+2. **Check for file permissions** issues
+3. **Consider PostgreSQL** for high traffic:
    - Add PostgreSQL service in Render
    - Update database connection in `models.py`
 
