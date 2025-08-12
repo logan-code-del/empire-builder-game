@@ -305,31 +305,25 @@ def train_units():
                 total_cost[resource] += cost * count
     
     # Check if empire has enough resources
-    if (empire.gold >= total_cost['gold'] and 
-        empire.iron >= total_cost['iron'] and 
-        empire.oil >= total_cost['oil'] and 
-        empire.food >= total_cost['food']):
+    if (empire.resources.get('gold', 0) >= total_cost['gold'] and 
+        empire.resources.get('iron', 0) >= total_cost['iron'] and 
+        empire.resources.get('oil', 0) >= total_cost['oil'] and 
+        empire.resources.get('food', 0) >= total_cost['food']):
         
         # Deduct resources
-        empire.gold -= total_cost['gold']
-        empire.iron -= total_cost['iron']
-        empire.oil -= total_cost['oil']
-        empire.food -= total_cost['food']
+        empire.resources['gold'] -= total_cost['gold']
+        empire.resources['iron'] -= total_cost['iron']
+        empire.resources['oil'] -= total_cost['oil']
+        empire.resources['food'] -= total_cost['food']
         
         # Add units
         for unit_type, count in data.items():
             if unit_type in UNIT_COSTS and count > 0:
-                if unit_type == 'infantry':
-                    empire.infantry += count
-                elif unit_type == 'tanks':
-                    empire.tanks += count
-                elif unit_type == 'aircraft':
-                    empire.aircraft += count
-                elif unit_type == 'ships':
-                    empire.ships += count
+                empire.military[unit_type] = empire.military.get(unit_type, 0) + count
         
-        # Update military power
-        empire.update_military_power()
+        # Update military power (if method exists)
+        if hasattr(empire, 'update_military_power'):
+            empire.update_military_power()
         
         # Save to database
         db.update_empire(empire)
@@ -368,10 +362,10 @@ def attack():
         return jsonify({'error': 'Must send at least one unit'}), 400
     
     # Check if attacker has enough units
-    if (attacking_units.get('infantry', 0) > attacker.infantry or
-        attacking_units.get('tanks', 0) > attacker.tanks or
-        attacking_units.get('aircraft', 0) > attacker.aircraft or
-        attacking_units.get('ships', 0) > attacker.ships):
+    if (attacking_units.get('infantry', 0) > attacker.military.get('infantry', 0) or
+        attacking_units.get('tanks', 0) > attacker.military.get('tanks', 0) or
+        attacking_units.get('aircraft', 0) > attacker.military.get('aircraft', 0) or
+        attacking_units.get('ships', 0) > attacker.military.get('ships', 0)):
         return jsonify({'error': 'Insufficient units'}), 400
     
     # Create battle system and execute battle
