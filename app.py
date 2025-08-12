@@ -182,30 +182,37 @@ def create_empire():
             return redirect(url_for('dashboard'))
     
     if request.method == 'POST':
-        name = request.form.get('name', '').strip()
-        ruler = request.form.get('ruler', '').strip()
-        location_x = float(request.form.get('location_x', 0))
-        location_y = float(request.form.get('location_y', 0))
+        # Handle both JSON and form data
+        if request.is_json:
+            data = request.get_json()
+            name = data.get('name', '').strip()
+            ruler = data.get('ruler', '').strip()
+            location_x = float(data.get('lat', 0))
+            location_y = float(data.get('lng', 0))
+        else:
+            name = request.form.get('name', '').strip()
+            ruler = request.form.get('ruler', '').strip()
+            location_x = float(request.form.get('location_x', 0))
+            location_y = float(request.form.get('location_y', 0))
         
         if not name or not ruler:
+            if request.is_json:
+                return jsonify({'success': False, 'error': 'Empire name and ruler name are required'})
             flash('Empire name and ruler name are required', 'error')
             return render_template('create_empire.html')
         
         # Create the empire
-        empire = Empire(
-            name=name,
-            ruler=ruler,
-            location_x=location_x,
-            location_y=location_y
-        )
-        
-        empire_id = db.create_empire(empire)
+        empire_id = db.create_empire(name, ruler, location_x, location_y)
         if empire_id:
             # Link the empire to the user
             auth_db.link_user_to_empire(current_user.id, empire_id)
+            if request.is_json:
+                return jsonify({'success': True, 'message': f'Empire "{name}" created successfully!'})
             flash(f'Empire "{name}" created successfully!', 'success')
             return redirect(url_for('dashboard'))
         else:
+            if request.is_json:
+                return jsonify({'success': False, 'error': 'Empire name already exists. Please choose a different name.'})
             flash('Empire name already exists. Please choose a different name.', 'error')
     
     return render_template('create_empire.html')
