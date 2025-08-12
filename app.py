@@ -1,6 +1,7 @@
 """
 Empire Builder - Production Flask Application (without alliance system)
 A comprehensive web-based empire building strategy game
+Version: 2.0.1 - Template fixes applied (all world_map references removed)
 """
 
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
