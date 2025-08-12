@@ -510,7 +510,7 @@ def initialize_game():
         create_ai_empires(db, count=5)
     
     # Initialize AI system
-    initialize_ai_system(db)
+    initialize_ai_system()
     
     # Start background resource generation
     resource_thread = threading.Thread(target=resource_generation_loop, daemon=True)
