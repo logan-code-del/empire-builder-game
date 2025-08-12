@@ -1,0 +1,21 @@
+{
+  "name": "empire-builder-electric",
+  "version": "1.0.0",
+  "description": "Empire Builder with Electric-SQL real-time sync",
+  "main": "electric-client.js",
+  "scripts": {
+    "electric:start": "electric-sql start",
+    "electric:migrate": "electric-sql migrate",
+    "electric:generate": "electric-sql generate",
+    "dev": "node electric-client.js"
+  },
+  "dependencies": {
+    "electric-sql": "^0.8.0",
+    "better-sqlite3": "^9.2.2",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/ws": "^8.5.10"
+  }
+}
