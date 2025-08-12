@@ -4,10 +4,14 @@ Real-time database with PostgreSQL backend
 """
 
 import os
+from dotenv import load_dotenv
 from supabase import create_client, Client
 from typing import Dict, List, Optional, Any
 import json
 from datetime import datetime
+
+# Load environment variables from .env file
+load_dotenv()
 
 class SupabaseConfig:
     """Supabase configuration and client management"""
