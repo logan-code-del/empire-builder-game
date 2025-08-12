@@ -169,12 +169,12 @@ class SupabaseGameDatabase:
             if initialize_supabase():
                 self.supabase = get_supabase_client()
                 self.use_supabase = True
-                print("✅ Using Supabase for real-time features")
+                print("Using Supabase for real-time features")
             else:
-                print("⚠️ Using SQLite fallback mode")
+                print("Using SQLite fallback mode")
                 self.use_supabase = False
         except Exception as e:
-            print(f"❌ Supabase initialization failed: {e}")
+            print(f"Supabase initialization failed: {e}")
             self.use_supabase = False
     
     def _get_fallback_connection(self):
@@ -209,13 +209,13 @@ class SupabaseGameDatabase:
                         'location': {'lat': lat, 'lng': lng}
                     })
                     
-                    print(f"🏰 Empire created in Supabase: {name}")
+                    print(f"Empire created in Supabase: {name}")
                     return empire_id
                 else:
                     raise Exception("Failed to create empire in Supabase")
                     
             except Exception as e:
-                print(f"❌ Supabase empire creation failed: {e}")
+                print(f"Supabase empire creation failed: {e}")
                 # Fall back to SQLite
                 return self._create_empire_fallback(empire_id, name, ruler, lat, lng)
         else:
@@ -242,7 +242,7 @@ class SupabaseGameDatabase:
         conn.commit()
         conn.close()
         
-        print(f"🏰 Empire created in SQLite: {name}")
+        print(f"Empire created in SQLite: {name}")
         return empire_id
     
     def get_empire(self, empire_id: str) -> Optional[Empire]:
@@ -273,7 +273,7 @@ class SupabaseGameDatabase:
                         updated_at=empire_data['updated_at']
                     )
             except Exception as e:
-                print(f"❌ Supabase get_empire failed: {e}")
+                print(f"Supabase get_empire failed: {e}")
                 # Fall back to SQLite
                 return self._get_empire_fallback(empire_id)
         else:
@@ -326,13 +326,13 @@ class SupabaseGameDatabase:
                 }).eq('id', empire.id).execute()
                 
                 if response.data:
-                    print(f"🔄 Empire updated in Supabase: {empire.id}")
+                    print(f"Empire updated in Supabase: {empire.id}")
                     return True
                 else:
                     raise Exception("Failed to update empire in Supabase")
                     
             except Exception as e:
-                print(f"❌ Supabase update_empire failed: {e}")
+                print(f"Supabase update_empire failed: {e}")
                 # Fall back to SQLite
                 return self._update_empire_fallback(empire)
         else:
@@ -364,7 +364,7 @@ class SupabaseGameDatabase:
         conn.close()
         
         if success:
-            print(f"🔄 Empire updated in SQLite: {empire.id}")
+            print(f"Empire updated in SQLite: {empire.id}")
         
         return success
     
@@ -396,7 +396,7 @@ class SupabaseGameDatabase:
                 return empires
                 
             except Exception as e:
-                print(f"❌ Supabase get_all_empires failed: {e}")
+                print(f"Supabase get_all_empires failed: {e}")
                 # Fall back to SQLite
                 return self._get_all_empires_fallback()
         else:
@@ -459,13 +459,13 @@ class SupabaseGameDatabase:
                         'attacking_units': attacking_units
                     })
                     
-                    print(f"⚔️ Battle created in Supabase: {battle_id}")
+                    print(f"Battle created in Supabase: {battle_id}")
                     return battle_id
                 else:
                     raise Exception("Failed to create battle in Supabase")
                     
             except Exception as e:
-                print(f"❌ Supabase create_battle failed: {e}")
+                print(f"Supabase create_battle failed: {e}")
                 # Could implement SQLite fallback here if needed
                 
         return battle_id
@@ -484,11 +484,11 @@ class SupabaseGameDatabase:
                 }).eq('id', battle_id).execute()
                 
                 if response.data:
-                    print(f"🏆 Battle completed in Supabase: {battle_id}")
+                    print(f"Battle completed in Supabase: {battle_id}")
                     return True
                     
             except Exception as e:
-                print(f"❌ Supabase complete_battle failed: {e}")
+                print(f"Supabase complete_battle failed: {e}")
         
         return False
     
@@ -508,11 +508,11 @@ class SupabaseGameDatabase:
                 }).execute()
                 
                 if response.data:
-                    print(f"💬 Message sent via Supabase: {from_empire_id} -> {to_empire_id}")
+                    print(f"Message sent via Supabase: {from_empire_id} -> {to_empire_id}")
                     return message_id
                     
             except Exception as e:
-                print(f"❌ Supabase send_message failed: {e}")
+                print(f"Supabase send_message failed: {e}")
         
         return message_id
     
@@ -533,7 +533,7 @@ class SupabaseGameDatabase:
                     return event_id
                     
             except Exception as e:
-                print(f"❌ Supabase log_game_event failed: {e}")
+                print(f"Supabase log_game_event failed: {e}")
         
         return event_id
     
@@ -555,7 +555,7 @@ class SupabaseGameDatabase:
                     return transaction_id
                     
             except Exception as e:
-                print(f"❌ Supabase log_resource_transaction failed: {e}")
+                print(f"Supabase log_resource_transaction failed: {e}")
         
         return transaction_id
     
@@ -573,7 +573,7 @@ class SupabaseGameDatabase:
                 return response.data if response.data else []
                 
             except Exception as e:
-                print(f"❌ Supabase get_recent_events failed: {e}")
+                print(f"Supabase get_recent_events failed: {e}")
         
         return []
     
@@ -589,7 +589,7 @@ class SupabaseGameDatabase:
                 return bool(response.data)
                 
             except Exception as e:
-                print(f"❌ Supabase link_user_to_empire failed: {e}")
+                print(f"Supabase link_user_to_empire failed: {e}")
         
         return False
 

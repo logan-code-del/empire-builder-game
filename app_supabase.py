@@ -42,11 +42,11 @@ def initialize_supabase():
     try:
         using_supabase = initialize_supabase_models()
         if using_supabase:
-            app.logger.info("🚀 Supabase real-time features enabled")
+            app.logger.info("Supabase real-time features enabled")
         else:
-            app.logger.warning("⚠️ Using SQLite fallback mode")
+            app.logger.warning("Using SQLite fallback mode")
     except Exception as e:
-        app.logger.error(f"❌ Supabase initialization failed: {e}")
+        app.logger.error(f"Supabase initialization failed: {e}")
 
 # Authentication Routes (unchanged)
 @app.route('/login', methods=['GET', 'POST'])

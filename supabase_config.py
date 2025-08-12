@@ -30,12 +30,12 @@ class SupabaseConfig:
             # Test connection
             response = self.client.table('empires').select('count').execute()
             self.is_connected = True
-            print("✅ Supabase connected successfully")
+            print("Supabase connected successfully")
             return True
             
         except Exception as e:
-            print(f"❌ Supabase connection failed: {e}")
-            print("⚠️ Using fallback SQLite mode")
+            print(f"Supabase connection failed: {e}")
+            print("Using fallback SQLite mode")
             self.is_connected = False
             return False
     
