@@ -142,6 +142,12 @@ def index():
 def dashboard():
     current_user = get_current_user()
     
+    # Safety check - if user doesn't exist, redirect to login
+    if not current_user:
+        session.clear()
+        flash('Session expired. Please log in again.', 'warning')
+        return redirect(url_for('login'))
+    
     if not current_user.empire_id:
         return redirect(url_for('create_empire'))
     
@@ -162,6 +168,12 @@ def dashboard():
 @login_required
 def create_empire():
     current_user = get_current_user()
+    
+    # Safety check - if user doesn't exist, redirect to login
+    if not current_user:
+        session.clear()
+        flash('Session expired. Please log in again.', 'warning')
+        return redirect(url_for('login'))
     
     # Check if user already has an empire
     if current_user.empire_id:
@@ -203,6 +215,12 @@ def create_empire():
 def military():
     current_user = get_current_user()
     
+    # Safety check - if user doesn't exist, redirect to login
+    if not current_user:
+        session.clear()
+        flash('Session expired. Please log in again.', 'warning')
+        return redirect(url_for('login'))
+    
     if not current_user.empire_id:
         return redirect(url_for('create_empire'))
     
@@ -219,6 +237,12 @@ def military():
 @login_required
 def cities():
     current_user = get_current_user()
+    
+    # Safety check - if user doesn't exist, redirect to login
+    if not current_user:
+        session.clear()
+        flash('Session expired. Please log in again.', 'warning')
+        return redirect(url_for('login'))
     
     if not current_user.empire_id:
         return redirect(url_for('create_empire'))
