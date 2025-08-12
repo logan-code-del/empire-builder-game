@@ -13,7 +13,7 @@ from dataclasses import asdict
 from datetime import timedelta
 
 # Import our models and game logic
-from models import GameDatabase, Empire, BattleSystem, UNIT_COSTS, UNIT_STATS
+from models import GameDatabase, Empire, BattleSystem, UNIT_COSTS, UNIT_STATS, BUILDING_TYPES
 from ai_system import ai_manager, create_ai_empires, initialize_ai_system
 from auth import auth_db, login_required, get_current_user, login_user, logout_user
 
@@ -275,7 +275,8 @@ def cities():
                          empire=asdict(empire),
                          city_costs=CITY_COSTS,
                          city_stats=CITY_STATS,
-                         land_cost=LAND_COST_PER_ACRE)
+                         land_cost=LAND_COST_PER_ACRE,
+                         building_types=BUILDING_TYPES)
 
 @app.route('/api/empire/<empire_id>')
 def get_empire_api(empire_id):
