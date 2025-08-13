@@ -115,22 +115,36 @@ class SupabaseAuthDatabase:
     def authenticate_user(self, username: str, password: str) -> Optional[User]:
         """Authenticate user login using Supabase"""
         try:
+            print(f"🔐 AUTH: Authenticating user '{username}'")
+            # Use service client for admin operations to bypass RLS
+            service_client = self.service_client or self.client
+            
             # Get user by username
-            result = self.client.table('users').select('*').eq(
+            print(f"🔐 AUTH: Querying database for user '{username}'")
+            result = service_client.table('users').select('*').eq(
                 'username', username
             ).eq('is_active', True).execute()
             
+            print(f"🔐 AUTH: Query result - Found {len(result.data) if result.data else 0} users")
+            
             if not result.data:
+                print(f"🔐 AUTH: No user found with username '{username}'")
                 return None
             
             user_data = result.data[0]
+            print(f"🔐 AUTH: User found - ID: {user_data['id']}")
             
             # Verify password
-            if self.verify_password(password, user_data['password_hash'], user_data['salt']):
+            print(f"🔐 AUTH: Verifying password...")
+            password_valid = self.verify_password(password, user_data['password_hash'], user_data['salt'])
+            print(f"🔐 AUTH: Password verification result: {password_valid}")
+            
+            if password_valid:
+                print(f"🔐 AUTH: Password correct, creating user object")
                 # Update last login
                 self.update_last_login(user_data['id'])
                 
-                return User(
+                user_obj = User(
                     id=user_data['id'],
                     username=user_data['username'],
                     email=user_data['email'],
@@ -141,6 +155,10 @@ class SupabaseAuthDatabase:
                     is_active=user_data['is_active'],
                     empire_id=user_data.get('empire_id')
                 )
+                print(f"🔐 AUTH: Authentication successful for {user_obj.username}")
+                return user_obj
+            else:
+                print(f"🔐 AUTH: Password incorrect for user '{username}'")
             
             return None
             
@@ -201,7 +219,8 @@ class SupabaseAuthDatabase:
     def update_last_login(self, user_id: str):
         """Update user's last login timestamp in Supabase"""
         try:
-            self.client.table('users').update({
+            service_client = self.service_client or self.client
+            service_client.table('users').update({
                 'last_login': datetime.now().isoformat()
             }).eq('id', user_id).execute()
             
@@ -211,7 +230,8 @@ class SupabaseAuthDatabase:
     def link_user_to_empire(self, user_id: str, empire_id: str):
         """Link a user account to an empire in Supabase"""
         try:
-            self.client.table('users').update({
+            service_client = self.service_client or self.client
+            service_client.table('users').update({
                 'empire_id': empire_id
             }).eq('id', user_id).execute()
             

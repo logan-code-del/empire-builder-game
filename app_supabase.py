@@ -72,16 +72,30 @@ def login():
             flash('Username and password are required', 'error')
             return render_template('login.html')
         
-        user = supabase_auth_db.authenticate_user(username, password)
-        if user:
-            login_user(user, remember_me)
+        print(f"🐛 Login attempt - Username: '{username}', Password length: {len(password)}")
+        
+        try:
+            user = supabase_auth_db.authenticate_user(username, password)
+            if user:
+                print(f"🐛 Authentication successful for user: {user.username}")
+                login_user(user, remember_me)
+                print(f"🐛 User logged in, redirecting to dashboard")
+                if request.is_json:
+                    return jsonify({'success': True, 'message': 'Login successful'})
+                return redirect(url_for('dashboard'))
+            else:
+                print(f"🐛 Authentication failed for username: {username}")
+                error = 'Invalid username or password'
+                if request.is_json:
+                    return jsonify({'error': error}), 401
+                flash(error, 'error')
+        except Exception as e:
+            print(f"🐛 Login exception: {e}")
+            import traceback
+            print(f"🐛 Traceback: {traceback.format_exc()}")
+            error = f'Login error: {str(e)}'
             if request.is_json:
-                return jsonify({'success': True, 'message': 'Login successful'})
-            return redirect(url_for('dashboard'))
-        else:
-            error = 'Invalid username or password'
-            if request.is_json:
-                return jsonify({'error': error}), 401
+                return jsonify({'error': error}), 500
             flash(error, 'error')
     
     return render_template('login.html')
