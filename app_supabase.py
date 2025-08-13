@@ -17,7 +17,7 @@ from models_supabase import (
     UNIT_COSTS, UNIT_STATS, BUILDING_TYPES, Empire
 )
 from ai_system import ai_manager, create_ai_empires, initialize_ai_system
-from auth import auth_db, login_required, get_current_user, login_user, logout_user
+from auth_supabase import supabase_auth_db, login_required, get_current_user, login_user, logout_user
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'empire-builder-supabase-key-2024')
@@ -68,7 +68,7 @@ def login():
             flash('Username and password are required', 'error')
             return render_template('login.html')
         
-        user = auth_db.authenticate_user(username, password)
+        user = supabase_auth_db.authenticate_user(username, password)
         if user:
             login_user(user, remember_me)
             if request.is_json:
@@ -118,7 +118,7 @@ def register():
         
         # Create user
         try:
-            user_id = auth_db.create_user(username, email, password)
+            user_id = supabase_auth_db.create_user(username, email, password)
             
             if user_id:
                 if request.is_json:
@@ -224,7 +224,7 @@ def create_empire():
         empire_id = db.create_empire(name, ruler, location_x, location_y)
         if empire_id:
             # Link the empire to the user
-            auth_db.link_user_to_empire(current_user.id, empire_id)
+            supabase_auth_db.link_user_to_empire(current_user.id, empire_id)
             
             # Also link in Supabase if available
             if db.use_supabase:
