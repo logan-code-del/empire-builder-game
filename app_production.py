@@ -507,7 +507,7 @@ def initialize_game():
     
     if len(ai_empires) < 3:
         print("🤖 Creating AI empires...")
-        create_ai_empires(db, target_count=5)
+        create_ai_empires(db, count=5)
     
     # Initialize AI system
     initialize_ai_system(db)
