@@ -376,6 +376,71 @@ def train_units():
     else:
         return jsonify({'error': 'Insufficient resources'}), 400
 
+@app.route('/api/build_city', methods=['POST'])
+@login_required
+def build_city():
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    empire = db.get_empire(current_user.empire_id)
+    data = request.json
+    
+    city_type = data.get('city_type')
+    city_name = data.get('city_name', '').strip()
+    
+    if not city_type or not city_name:
+        return jsonify({'error': 'City type and name are required'}), 400
+    
+    if db.build_city(empire, city_type, city_name):
+        return jsonify({'success': True, 'empire': asdict(empire)})
+    else:
+        return jsonify({'error': 'Failed to build city (insufficient resources or land)'}), 400
+
+@app.route('/api/build_building', methods=['POST'])
+@login_required
+def build_building():
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    empire = db.get_empire(current_user.empire_id)
+    data = request.json
+    
+    city_id = data.get('city_id')
+    building_type = data.get('building_type')
+    
+    if not city_id or not building_type:
+        return jsonify({'error': 'City ID and building type are required'}), 400
+    
+    if db.build_building(empire, city_id, building_type):
+        return jsonify({'success': True, 'empire': asdict(empire)})
+    else:
+        return jsonify({'error': 'Failed to build building (insufficient resources or space)'}), 400
+
+@app.route('/api/buy_land', methods=['POST'])
+@login_required
+def buy_land():
+    current_user = get_current_user()
+    
+    if not current_user.empire_id:
+        return jsonify({'error': 'No empire found'}), 400
+    
+    empire = db.get_empire(current_user.empire_id)
+    data = request.json
+    
+    acres = data.get('acres', 0)
+    
+    if acres <= 0:
+        return jsonify({'error': 'Invalid land amount'}), 400
+    
+    if db.buy_land(empire, acres):
+        return jsonify({'success': True, 'empire': asdict(empire)})
+    else:
+        return jsonify({'error': 'Insufficient gold'}), 400
+
 @app.route('/api/attack', methods=['POST'])
 @login_required
 def attack():
