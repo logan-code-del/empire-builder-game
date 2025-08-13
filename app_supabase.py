@@ -10,6 +10,10 @@ import time
 import threading
 from dataclasses import asdict
 from datetime import timedelta
+from dotenv import load_dotenv
+
+# Load environment variables from .env file (override system env vars)
+load_dotenv(override=True)
 
 # Import Supabase enhanced models
 from models_supabase import (

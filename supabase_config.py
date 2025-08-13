@@ -10,8 +10,8 @@ from typing import Dict, List, Optional, Any
 import json
 from datetime import datetime
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file (override system env vars)
+load_dotenv(override=True)
 
 class SupabaseConfig:
     """Supabase configuration and client management"""
@@ -55,6 +55,16 @@ supabase_config = SupabaseConfig()
 def get_supabase_client() -> Client:
     """Get configured Supabase client"""
     return supabase_config.get_client()
+
+def get_supabase_service_client() -> Client:
+    """Get Supabase client with service role key for admin operations"""
+    try:
+        url = os.getenv('SUPABASE_URL', 'https://your-project.supabase.co')
+        service_key = os.getenv('SUPABASE_SERVICE_KEY', 'your-service-key-here')
+        return create_client(url, service_key)
+    except Exception as e:
+        print(f"Failed to create service client: {e}")
+        return None
 
 def initialize_supabase() -> bool:
     """Initialize Supabase connection"""
