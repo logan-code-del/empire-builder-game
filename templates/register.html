@@ -71,12 +71,26 @@
                     </div>
                 </div>
                 
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="agree_terms" name="agree_terms" required>
-                    <label class="form-check-label" for="agree_terms">
-                        I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms of Service</a>
-                        and <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
-                    </label>
+                <div class="mb-3">
+                    <div class="alert alert-warning">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="agree_terms" name="agree_terms" required disabled>
+                            <label class="form-check-label" for="agree_terms">
+                                <strong>I have read, understood, and agree to be legally bound by the 
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal" class="text-danger">
+                                    <u>Terms and Conditions</u>
+                                </a> 
+                                and 
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal" class="text-primary">
+                                    <u>Privacy Policy</u>
+                                </a></strong>
+                            </label>
+                        </div>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> 
+                            You must read the Terms and Conditions before you can agree to them.
+                        </small>
+                    </div>
                 </div>
                 
                 <div class="d-grid gap-2">
@@ -113,30 +127,142 @@
 
 <!-- Terms of Service Modal -->
 <div class="modal fade" id="termsModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Terms of Service</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    EMPIRE BUILDER - TERMS AND CONDITIONS
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <h6>1. Acceptance of Terms</h6>
-                <p>By creating an account and playing Empire Builder, you agree to these terms.</p>
-                
-                <h6>2. Fair Play</h6>
-                <p>Players must engage in fair play. Cheating, exploiting bugs, or using automated tools is prohibited.</p>
-                
-                <h6>3. Account Responsibility</h6>
-                <p>You are responsible for maintaining the security of your account and password.</p>
-                
-                <h6>4. Content and Conduct</h6>
-                <p>Players must maintain respectful conduct. Harassment, offensive language, or inappropriate content is not allowed.</p>
-                
-                <h6>5. Game Changes</h6>
-                <p>We reserve the right to modify game mechanics, features, or these terms at any time.</p>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-gavel"></i> IMPORTANT LEGAL NOTICE</h6>
+                    <p><strong>READ THESE TERMS CAREFULLY BEFORE USING EMPIRE BUILDER GAME</strong></p>
+                    <p>By creating an account, you agree to be legally bound by these Terms and Conditions. 
+                    <strong>VIOLATION OF THESE TERMS MAY RESULT IN SEVERE LEGAL CONSEQUENCES INCLUDING 
+                    SUBSTANTIAL MONETARY PENALTIES AND CRIMINAL PROSECUTION.</strong></p>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <h6><i class="fas fa-users"></i> 1. PARTIES AND DEFINITIONS</h6>
+                        <p><strong>Original Creators:</strong> Logan-code-del (GitHub: https://github.com/logan-code-del) and Doom (development.doom.endnote612@passfwd.com)</p>
+                        <p><strong>Service:</strong> The Empire Builder game, including all software, code, assets, documentation, and related materials</p>
+                        <hr>
+
+                        <h6><i class="fas fa-file-contract"></i> 2. LICENSE AND USAGE RIGHTS</h6>
+                        <p><strong>Limited License:</strong> You are granted a limited, non-exclusive, non-transferable, revocable license for personal, educational, or non-commercial use only.</p>
+                        
+                        <div class="alert alert-warning">
+                            <h6><strong>MANDATORY ATTRIBUTION REQUIREMENTS:</strong></h6>
+                            <p>ANY deployment or use MUST include this attribution:</p>
+                            <div class="bg-light p-2 border">
+                                <small>
+                                "Empire Builder Game - Originally created by Logan-code-del and Doom<br>
+                                GitHub: https://github.com/logan-code-del/empire-builder-game<br>
+                                Contact: development.doom.endnote612@passfwd.com<br><br>
+                                This deployment is based on the original Empire Builder codebase.<br>
+                                All rights reserved to original creators."
+                                </small>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <h6><i class="fas fa-ban"></i> 3. PROHIBITED ACTIONS</h6>
+                        <ul>
+                            <li><strong>Commercial use</strong> without written permission</li>
+                            <li><strong>Removing or altering</strong> copyright notices or attribution</li>
+                            <li><strong>Reverse engineering</strong> or creating derivative works</li>
+                            <li><strong>Distributing or sublicensing</strong> the software</li>
+                            <li><strong>Cheating, exploiting, or using automated tools</strong></li>
+                            <li><strong>Harassment or inappropriate conduct</strong></li>
+                        </ul>
+                        <hr>
+
+                        <h6><i class="fas fa-dollar-sign"></i> 4. COMMERCIAL USE RESTRICTIONS</h6>
+                        <div class="alert alert-danger">
+                            <p><strong>COMMERCIAL USE IS STRICTLY PROHIBITED</strong> without explicit written permission, including:</p>
+                            <ul>
+                                <li>Charging fees for access</li>
+                                <li>Displaying advertisements</li>
+                                <li>Selling virtual items or currency</li>
+                                <li>Using for business purposes</li>
+                                <li>Generating revenue in any form</li>
+                            </ul>
+                        </div>
+                        <hr>
+
+                        <h6><i class="fas fa-shield-alt"></i> 5. INTELLECTUAL PROPERTY</h6>
+                        <p><strong>Complete Ownership:</strong> Original Creators own ALL rights to the Service, including code, graphics, text, trademarks, and other materials.</p>
+                        <p><strong>Copyright Protection:</strong> The Service is protected by copyright law and international treaties.</p>
+                        <hr>
+
+                        <h6><i class="fas fa-user-shield"></i> 6. USER CONDUCT</h6>
+                        <p><strong>Account Security:</strong> You are responsible for maintaining account security and must notify us of unauthorized access.</p>
+                        <p><strong>Prohibited Conduct:</strong> No harassment, offensive usernames, cheating, spam, or illegal activities.</p>
+                        <hr>
+
+                        <h6><i class="fas fa-exclamation-circle"></i> 7. DISCLAIMERS</h6>
+                        <p><strong>Service provided "AS IS"</strong> without warranties. No guarantee of continuous availability or error-free operation.</p>
+                        <hr>
+
+                        <h6><i class="fas fa-gavel"></i> 8. LEGAL CONSEQUENCES</h6>
+                        <div class="alert alert-danger">
+                            <h6><strong>VIOLATION PENALTIES:</strong></h6>
+                            <ul>
+                                <li><strong>Monetary damages up to $100,000 per violation</strong></li>
+                                <li><strong>Criminal prosecution</strong> under DMCA and copyright laws</li>
+                                <li><strong>Immediate account termination</strong></li>
+                                <li><strong>Legal fees and court costs</strong></li>
+                                <li><strong>Emergency injunctions</strong></li>
+                                <li><strong>Potential imprisonment</strong> under IP statutes</li>
+                            </ul>
+                        </div>
+                        <hr>
+
+                        <h6><i class="fas fa-balance-scale"></i> 9. DISPUTE RESOLUTION</h6>
+                        <p><strong>Governing Law:</strong> United States federal law</p>
+                        <p><strong>Jurisdiction:</strong> Exclusive jurisdiction in federal courts</p>
+                        <hr>
+
+                        <h6><i class="fas fa-phone"></i> 10. CONTACT INFORMATION</h6>
+                        <p><strong>Legal Notices:</strong> GitHub Issues: https://github.com/logan-code-del/empire-builder-game/issues</p>
+                        <p><strong>Email:</strong> development.doom.endnote612@passfwd.com</p>
+                        <hr>
+
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> ACKNOWLEDGMENT</h6>
+                            <p><strong>By clicking "I Agree" and creating an account, you acknowledge that:</strong></p>
+                            <ul>
+                                <li>✅ You have read and understood these Terms and Conditions</li>
+                                <li>✅ You agree to be legally bound by all provisions</li>
+                                <li>✅ You understand the consequences of violations</li>
+                                <li>✅ You will comply with all attribution requirements</li>
+                                <li>✅ You will not use the Service for commercial purposes without permission</li>
+                                <li>✅ You accept all risks associated with use</li>
+                            </ul>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <p><strong>© 2024 Logan-code-del and Doom. All Rights Reserved.</strong></p>
+                            <p><small>This document is legally binding. Violations may result in severe civil and criminal penalties.</small></p>
+                            <p><small>Version 1.0 - December 2024</small></p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer bg-light">
+                <div class="text-center w-100">
+                    <p class="mb-2"><strong>IF YOU DO NOT AGREE TO ALL TERMS, YOU MUST NOT USE THE SERVICE.</strong></p>
+                    <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> I Do Not Agree
+                    </button>
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal" id="agreeTermsBtn">
+                        <i class="fas fa-check"></i> I Agree to These Terms
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -146,28 +272,118 @@
 <div class="modal fade" id="privacyModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Privacy Policy</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-shield-alt"></i>
+                    EMPIRE BUILDER - PRIVACY POLICY
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <h6>Information We Collect</h6>
-                <p>We collect your username, email address, and game progress data.</p>
-                
-                <h6>How We Use Your Information</h6>
-                <p>Your information is used to provide game services, save progress, and communicate important updates.</p>
-                
-                <h6>Data Security</h6>
-                <p>We use industry-standard security measures to protect your data.</p>
-                
-                <h6>Data Sharing</h6>
-                <p>We do not sell or share your personal information with third parties.</p>
-                
-                <h6>Contact Us</h6>
-                <p>If you have questions about this privacy policy, please contact us through the game's help system.</p>
+            <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle"></i> PRIVACY NOTICE</h6>
+                    <p><strong>Effective Date:</strong> December 2024</p>
+                    <p>This Privacy Policy explains how Logan-code-del and Doom collect, use, and protect your information when you use Empire Builder.</p>
+                </div>
+
+                <h6><i class="fas fa-database"></i> 1. INFORMATION WE COLLECT</h6>
+                <div class="alert alert-light">
+                    <p><strong>Account Information:</strong></p>
+                    <ul>
+                        <li>Username and email address</li>
+                        <li>Encrypted password</li>
+                        <li>Account creation date</li>
+                    </ul>
+                    
+                    <p><strong>Gameplay Data:</strong></p>
+                    <ul>
+                        <li>Game progress and statistics</li>
+                        <li>Empire configurations and settings</li>
+                        <li>Leaderboard rankings</li>
+                        <li>In-game communications</li>
+                    </ul>
+                    
+                    <p><strong>Technical Information:</strong></p>
+                    <ul>
+                        <li>IP address and device information</li>
+                        <li>Browser type and version</li>
+                        <li>Session data and timestamps</li>
+                        <li>Error logs and performance data</li>
+                    </ul>
+                </div>
+
+                <h6><i class="fas fa-cogs"></i> 2. HOW WE USE YOUR INFORMATION</h6>
+                <ul>
+                    <li><strong>Service Provision:</strong> Provide and maintain game functionality</li>
+                    <li><strong>Account Management:</strong> Create and manage user accounts</li>
+                    <li><strong>Progress Saving:</strong> Store and sync game progress across devices</li>
+                    <li><strong>Communication:</strong> Send important updates and notifications</li>
+                    <li><strong>Security:</strong> Prevent fraud, abuse, and unauthorized access</li>
+                    <li><strong>Improvement:</strong> Analyze usage to improve game features</li>
+                    <li><strong>Legal Compliance:</strong> Comply with applicable laws and regulations</li>
+                </ul>
+
+                <h6><i class="fas fa-lock"></i> 3. DATA SECURITY</h6>
+                <div class="alert alert-success">
+                    <p><strong>Security Measures:</strong></p>
+                    <ul>
+                        <li>Industry-standard encryption for data transmission</li>
+                        <li>Secure password hashing and storage</li>
+                        <li>Regular security audits and updates</li>
+                        <li>Access controls and authentication systems</li>
+                        <li>Secure database hosting with Supabase</li>
+                    </ul>
+                </div>
+
+                <h6><i class="fas fa-share-alt"></i> 4. DATA SHARING AND DISCLOSURE</h6>
+                <div class="alert alert-warning">
+                    <p><strong>We DO NOT sell your personal information.</strong></p>
+                    <p><strong>Limited sharing may occur for:</strong></p>
+                    <ul>
+                        <li><strong>Service Providers:</strong> Third-party services that help operate the game (e.g., Supabase for database hosting)</li>
+                        <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
+                        <li><strong>Safety:</strong> To prevent harm or illegal activities</li>
+                        <li><strong>Business Transfer:</strong> In case of merger, acquisition, or asset sale</li>
+                    </ul>
+                </div>
+
+                <h6><i class="fas fa-clock"></i> 5. DATA RETENTION</h6>
+                <p>We retain your information for as long as:</p>
+                <ul>
+                    <li>Your account remains active</li>
+                    <li>Required to provide services</li>
+                    <li>Necessary for legal compliance</li>
+                    <li>Needed to resolve disputes</li>
+                </ul>
+
+                <h6><i class="fas fa-user-cog"></i> 6. YOUR RIGHTS</h6>
+                <p>You have the right to:</p>
+                <ul>
+                    <li><strong>Access:</strong> Request information about your data</li>
+                    <li><strong>Correction:</strong> Update or correct your information</li>
+                    <li><strong>Deletion:</strong> Request account and data deletion</li>
+                    <li><strong>Portability:</strong> Export your game data</li>
+                    <li><strong>Objection:</strong> Object to certain data processing</li>
+                </ul>
+
+                <h6><i class="fas fa-child"></i> 7. CHILDREN'S PRIVACY</h6>
+                <div class="alert alert-danger">
+                    <p><strong>Age Requirement:</strong> Empire Builder is intended for users 13 years and older. We do not knowingly collect information from children under 13.</p>
+                </div>
+
+                <h6><i class="fas fa-phone"></i> 8. CONTACT INFORMATION</h6>
+                <p><strong>Privacy Questions:</strong> development.doom.endnote612@passfwd.com</p>
+                <p><strong>Data Requests:</strong> Submit via GitHub Issues with "Privacy Request" in the title</p>
+
+                <div class="text-center mt-3">
+                    <p><strong>© 2024 Logan-code-del and Doom. All Rights Reserved.</strong></p>
+                    <p><small>Last Updated: December 2024 | Version 1.0</small></p>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                    <i class="fas fa-check"></i> I Understand
+                </button>
             </div>
         </div>
     </div>
@@ -228,6 +444,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const togglePassword = document.getElementById('togglePassword');
     const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
     const usernameInput = document.getElementById('username');
+    const agreeTermsCheckbox = document.getElementById('agree_terms');
+    const agreeTermsBtn = document.getElementById('agreeTermsBtn');
+    
+    // Terms agreement functionality
+    let termsRead = false;
+    
+    // Track when terms modal is opened
+    const termsModal = document.getElementById('termsModal');
+    termsModal.addEventListener('shown.bs.modal', function() {
+        // Start timer to ensure user spends time reading
+        setTimeout(function() {
+            termsRead = true;
+            agreeTermsCheckbox.disabled = false;
+            document.querySelector('.alert.alert-warning small').innerHTML = 
+                '<i class="fas fa-check-circle text-success"></i> You may now agree to the terms if you accept them.';
+        }, 10000); // 10 seconds minimum reading time
+    });
+    
+    // Handle "I Agree" button click
+    agreeTermsBtn.addEventListener('click', function() {
+        if (termsRead) {
+            agreeTermsCheckbox.checked = true;
+            agreeTermsCheckbox.disabled = false;
+            
+            // Show confirmation
+            const alertDiv = document.querySelector('.alert.alert-warning');
+            alertDiv.className = 'alert alert-success';
+            alertDiv.querySelector('small').innerHTML = 
+                '<i class="fas fa-check-circle"></i> <strong>Terms accepted.</strong> You have agreed to be legally bound by the Terms and Conditions.';
+        }
+    });
     
     // Toggle password visibility
     togglePassword.addEventListener('click', function() {
