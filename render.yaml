@@ -10,4 +10,10 @@ services:
         value: production
       - key: SECRET_KEY
         generateValue: true
+      - key: SUPABASE_URL
+        value: https://remcwotlefzuwphwivzh.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlbWN3b3RsZWZ6dXdwaHdpdnpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUwMTI1NTIsImV4cCI6MjA3MDU4ODU1Mn0.xuxG3xLkn6ErXl5LzhT2JoDUPLkqzwX6mBgBi1_0cMY
+      - key: SUPABASE_SERVICE_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlbWN3b3RsZWZ6dXdwaHdpdnpoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTAxMjU1MiwiZXhwIjoyMDcwNTg4NTUyfQ.QK6OiD0onFrA3p9X2uI7CebPRAtl7m3xV41KFwr9Hjw
     autoDeploy: true

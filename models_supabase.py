@@ -162,6 +162,7 @@ class SupabaseGameDatabase:
         self.supabase = None
         self.use_supabase = False
         self.fallback_db = 'empire_game.db'
+        self._init_fallback_db()
         
     def initialize(self):
         """Initialize Supabase connection"""
@@ -176,6 +177,94 @@ class SupabaseGameDatabase:
         except Exception as e:
             print(f"Supabase initialization failed: {e}")
             self.use_supabase = False
+    
+    def _init_fallback_db(self):
+        """Initialize SQLite fallback database with all required tables"""
+        try:
+            conn = sqlite3.connect(self.fallback_db)
+            cursor = conn.cursor()
+            
+            # Create empires table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS empires (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    ruler TEXT NOT NULL,
+                    land INTEGER NOT NULL,
+                    resources TEXT NOT NULL,
+                    military TEXT NOT NULL,
+                    location TEXT NOT NULL,
+                    last_update TEXT NOT NULL,
+                    is_ai BOOLEAN DEFAULT 0,
+                    cities TEXT DEFAULT '{}',
+                    buildings TEXT DEFAULT '{}',
+                    created_at TEXT,
+                    updated_at TEXT
+                )
+            ''')
+            
+            # Create battles table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS battles (
+                    id TEXT PRIMARY KEY,
+                    attacker_id TEXT NOT NULL,
+                    defender_id TEXT NOT NULL,
+                    attacking_units TEXT NOT NULL,
+                    defending_units TEXT NOT NULL,
+                    result TEXT,
+                    created_at TEXT NOT NULL,
+                    completed_at TEXT,
+                    FOREIGN KEY (attacker_id) REFERENCES empires (id),
+                    FOREIGN KEY (defender_id) REFERENCES empires (id)
+                )
+            ''')
+            
+            # Create messages table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS messages (
+                    id TEXT PRIMARY KEY,
+                    from_empire_id TEXT NOT NULL,
+                    to_empire_id TEXT NOT NULL,
+                    message TEXT NOT NULL,
+                    message_type TEXT DEFAULT 'general',
+                    created_at TEXT NOT NULL,
+                    read_at TEXT,
+                    FOREIGN KEY (from_empire_id) REFERENCES empires (id),
+                    FOREIGN KEY (to_empire_id) REFERENCES empires (id)
+                )
+            ''')
+            
+            # Create game_events table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS game_events (
+                    id TEXT PRIMARY KEY,
+                    empire_id TEXT,
+                    event_type TEXT NOT NULL,
+                    event_data TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY (empire_id) REFERENCES empires (id)
+                )
+            ''')
+            
+            # Create resource_transactions table
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS resource_transactions (
+                    id TEXT PRIMARY KEY,
+                    empire_id TEXT NOT NULL,
+                    transaction_type TEXT NOT NULL,
+                    resources TEXT NOT NULL,
+                    reason TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY (empire_id) REFERENCES empires (id)
+                )
+            ''')
+            
+            conn.commit()
+            conn.close()
+            print("✅ SQLite fallback database initialized")
+            
+        except Exception as e:
+            print(f"⚠️  SQLite fallback database initialization failed: {e}")
     
     def _get_fallback_connection(self):
         """Get SQLite fallback connection"""

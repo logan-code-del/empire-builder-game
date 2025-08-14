@@ -37,6 +37,10 @@ db = GameDatabase
 battle_system = BattleSystem
 active_battles = {}  # battle_id -> battle_data
 
+# Initialize Supabase connection
+print("🔗 Initializing Supabase connection...")
+db.initialize()
+
 # Authentication Routes
 @app.route('/login', methods=['GET', 'POST'])
 def login():
