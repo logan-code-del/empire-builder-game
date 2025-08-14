@@ -109,5 +109,12 @@ autodoc_mock_imports = [
     'flask_socketio',
     'dotenv',
     'requests',
-    'jinja2'
+    'jinja2',
+    'flask_login',
+    'werkzeug',
+    'psycopg2',
+    'gunicorn'
 ]
+
+# Suppress warnings for missing modules
+suppress_warnings = ['autodoc.import_object']
