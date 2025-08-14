@@ -1,21 +1,135 @@
-MIT License
+EMPIRE BUILDER GAME - CUSTOM LICENSE AGREEMENT
+==============================================
 
-Copyright (c) 2024 Empire Builder Game
+Copyright (c) 2024 Logan-code-del and Doom
+All Rights Reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+IMPORTANT LEGAL NOTICE: READ CAREFULLY BEFORE USE
+This software is protected by copyright law and international treaties. 
+Unauthorized use may result in severe civil and criminal penalties.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+DEFINITIONS:
+- "Software" refers to the Empire Builder game, including all source code, assets, documentation, and related materials
+- "Original Creators" refers to Logan-code-del (GitHub: https://github.com/logan-code-del) and Doom (development.doom.endnote612@passfwd.com)
+- "Deployment" means any installation, hosting, or making available of the Software
+- "Major Modification" means changes affecting more than 25% of the codebase or core functionality
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+GRANT OF LIMITED LICENSE:
+Subject to strict compliance with ALL terms below, you are granted a limited, non-exclusive, non-transferable license to use this Software for personal, educational, or non-commercial purposes only.
+
+MANDATORY REQUIREMENTS (VIOLATION = IMMEDIATE LICENSE TERMINATION):
+
+1. ATTRIBUTION REQUIREMENTS (100% MANDATORY):
+   a) EVERY deployment MUST display the following attribution in ALL specified locations:
+      - Main application interface (visible to ALL users at ALL times)
+      - About/Credits page or section (prominently displayed)
+      - Application startup/loading screen
+      - ALL documentation files
+      - ALL README files
+      - ANY marketing materials
+      - Source code headers in ALL files (original and modified)
+   
+   b) Attribution MUST use EXACTLY this text (NO modifications allowed):
+      "Empire Builder Game - Originally created by Logan-code-del and Doom
+       GitHub: https://github.com/logan-code-del/empire-builder-game
+       Contact: development.doom.endnote612@passfwd.com
+       
+       This deployment is based on the original Empire Builder codebase.
+       All rights reserved to original creators."
+   
+   c) Attribution text MUST be:
+      - Clearly visible and readable
+      - In a font size no smaller than 12pt
+      - Not hidden behind menus or multiple clicks
+      - Present in the same language as the application interface
+
+2. APPROVAL REQUIREMENTS FOR MAJOR CHANGES:
+   The following actions REQUIRE explicit written approval via GitHub Issues:
+   - Modifications exceeding 25% of original codebase
+   - Changes to authentication systems
+   - Changes to database structure or game mechanics
+   - ANY commercial use or monetization
+   - ANY redistribution or sublicensing
+   - ANY public deployment serving more than 10 users
+   
+   Approval requests MUST include:
+   - Complete technical specification of changes
+   - Intended use case and user base size
+   - Legal contact information
+   - Proposed implementation timeline
+   - Compliance verification plan
+
+3. PROHIBITED ACTIONS (ZERO TOLERANCE):
+   - Removing, modifying, or obscuring attribution requirements
+   - Claiming original authorship or ownership
+   - Commercial use without explicit written permission
+   - Reverse engineering for competitive advantage
+   - Creating derivative works without approval
+   - Sublicensing or redistributing without permission
+   - Using the Software name or branding without permission
+
+4. COMPLIANCE MONITORING:
+   - Original Creators reserve unlimited audit rights
+   - Automated compliance checking may be implemented
+   - You MUST provide access for compliance verification upon request
+   - Non-compliance results in immediate license termination
+
+5. LEGAL CONSEQUENCES FOR VIOLATIONS:
+   Violation of ANY term results in:
+   - Immediate and permanent license termination
+   - Mandatory cessation of ALL use within 24 hours
+   - Monetary damages: $100,000 USD per violation (minimum)
+   - Additional damages for lost profits and reputation harm
+   - Full legal fees and court costs
+   - Criminal prosecution under applicable laws including:
+     * Digital Millennium Copyright Act (DMCA)
+     * Computer Fraud and Abuse Act
+     * International copyright treaties
+   - Potential imprisonment under intellectual property statutes
+   - Permanent injunction against future use
+
+6. ENFORCEMENT AND JURISDICTION:
+   - This license is governed by United States federal law
+   - Disputes subject to exclusive jurisdiction of federal courts
+   - Violations may be prosecuted in any jurisdiction where infringement occurs
+   - Original Creators may seek emergency injunctive relief
+   - Prevailing party entitled to attorney fees and costs
+
+7. TERMINATION:
+   - License terminates automatically upon ANY violation
+   - Termination requires immediate cessation of ALL use
+   - Survival of attribution, damages, and legal consequence provisions
+   - No right to cure violations - termination is permanent
+
+8. CONTACT AND PERMISSIONS:
+   ALL requests MUST be submitted to:
+   - GitHub Issues: https://github.com/logan-code-del/empire-builder-game/issues
+   - Email: development.doom.endnote612@passfwd.com
+   - Subject: "Empire Builder License Request - [Request Type]"
+   
+   Response time: Up to 30 business days
+   Approval is at sole discretion of Original Creators
+   Fees may apply for commercial permissions
+
+9. WARRANTY DISCLAIMER:
+   SOFTWARE PROVIDED "AS IS" WITHOUT ANY WARRANTIES.
+   ORIGINAL CREATORS DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED.
+   USE AT YOUR OWN RISK.
+
+10. LIMITATION OF LIABILITY:
+    ORIGINAL CREATORS NOT LIABLE FOR ANY DAMAGES ARISING FROM USE.
+    YOUR SOLE REMEDY IS DISCONTINUATION OF USE.
+
+BY INSTALLING, DOWNLOADING, ACCESSING, OR USING THIS SOFTWARE IN ANY WAY, 
+YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE LEGALLY 
+BOUND BY ALL TERMS OF THIS LICENSE AGREEMENT.
+
+IF YOU DO NOT AGREE TO ALL TERMS, YOU MUST NOT USE THIS SOFTWARE.
+
+This license agreement constitutes the complete and exclusive agreement 
+between you and the Original Creators regarding the Software.
+
+Last Updated: December 2024
+Version: 1.0
+
+For questions about this license, contact: development.doom.endnote612@passfwd.com
