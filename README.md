@@ -1,13 +1,27 @@
 # 🏰 Empire Builder - Strategic Conquest Game
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Flask](https://img.shields.io/badge/Flask-2.3+-green.svg)](https://flask.palletsprojects.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Flask](https://img.shields.io/badge/Flask-2.2.5+-green.svg)](https://flask.palletsprojects.com/)
+[![License](https://img.shields.io/badge/License-Custom-red.svg)](LICENSE)
+[![Documentation](https://img.shields.io/badge/Docs-Read%20the%20Docs-blue.svg)](https://empire-builder.readthedocs.io/)
 [![Deploy](https://img.shields.io/badge/Deploy-Render-46E3B7.svg)](https://render.com)
 
 A comprehensive web-based empire building strategy game where players create their own nations, build cities, manage resources, and engage in real-time combat for territorial expansion and world domination.
 
-## 🎮 [Play Online](https://empire-builder.onrender.com) | 📖 [Documentation](CITIES_AND_BUILDINGS.md) | 🚀 [Deploy Guide](DEPLOYMENT.md)
+**Created by Logan-code-del and Doom** | **All Rights Reserved**
+
+## 🎮 [Play Online](https://empire-builder.onrender.com) | 📖 [Full Documentation](https://empire-builder.readthedocs.io/) | 🚀 [Deploy Guide](DEPLOYMENT.md)
+
+## ⚠️ IMPORTANT LEGAL NOTICE
+
+**This software is protected by comprehensive legal terms and conditions. By using, modifying, or deploying this software, you agree to be legally bound by our Terms and Conditions, which include:**
+
+- **Mandatory attribution requirements** for any deployment
+- **Commercial use restrictions** without explicit permission
+- **Severe legal penalties** for violations (up to $100,000 per violation)
+- **Criminal prosecution** under applicable copyright laws
+
+**📋 [Read Full Terms and Conditions](TERMS_AND_CONDITIONS.md) | 📄 [License Agreement](LICENSE) | © [Copyright Notice](COPYRIGHT)**
 
 ![Empire Builder Screenshot](https://via.placeholder.com/800x400/1a1a1a/ffffff?text=Empire+Builder+Game+Screenshot)
 
@@ -110,29 +124,50 @@ python app.py
 
 ## 🛠️ Technical Features
 
-- **Framework**: Flask + Socket.IO for real-time gameplay
+- **Framework**: Flask 2.2.5+ with Socket.IO for real-time gameplay
+- **Database**: Supabase (PostgreSQL) with SQLite fallback
 - **Production Server**: Gunicorn with eventlet for WebSocket support
-- **Database**: SQLite with PostgreSQL support
-- **Frontend**: Responsive HTML5/CSS3/JavaScript
-- **Real-time**: WebSocket communication
-- **Mobile**: Optimized for all devices
-- **AI**: Intelligent computer opponents
+- **Frontend**: Responsive HTML5/CSS3/JavaScript with Bootstrap
+- **Real-time**: WebSocket communication for live updates
+- **Authentication**: Secure user registration and login system
+- **Mobile**: Fully optimized for all devices and screen sizes
+- **AI**: Intelligent computer opponents with strategic behavior
+- **Documentation**: Comprehensive Sphinx documentation on Read the Docs
+- **Legal Protection**: Complete terms, conditions, and copyright framework
 
 ## 🚀 Deployment
+
+**⚠️ IMPORTANT: All deployments must comply with our [Terms and Conditions](TERMS_AND_CONDITIONS.md) and include proper attribution.**
 
 Deploy your own instance of Empire Builder:
 
 ### One-Click Deploy
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
 
-### Manual Deployment
-See our [Deployment Guide](DEPLOYMENT.md) for detailed instructions on:
-- Render deployment (recommended)
-- Railway deployment  
-- Heroku deployment
-- Local development setup
+### Manual Deployment Options
+See our comprehensive documentation for detailed instructions:
+
+- 📖 **[Complete Documentation](https://empire-builder.readthedocs.io/)** - Full deployment guide
+- 🚀 **[Render Deployment](DEPLOYMENT.md)** - Recommended platform
+- 🐳 **[Docker Deployment](DEPLOYMENT.md#docker-deployment)** - Containerized deployment
+- ☁️ **[Heroku Deployment](DEPLOYMENT.md#heroku-deployment)** - Alternative cloud platform
+- 🖥️ **[Local Development](DEPLOYMENT.md#local-development)** - Development setup
+
+### Attribution Requirements
+**ALL deployments MUST include this attribution:**
+
+```
+Empire Builder Game - Originally created by Logan-code-del and Doom
+GitHub: https://github.com/logan-code-del/empire-builder-game
+Contact: development.doom.endnote612@passfwd.com
+
+This deployment is based on the original Empire Builder codebase.
+All rights reserved to original creators.
+```
 
 ## 🤝 Contributing
+
+**⚠️ IMPORTANT: All contributions must comply with our [Terms and Conditions](TERMS_AND_CONDITIONS.md). Major modifications require approval via GitHub Issues.**
 
 We welcome contributions! Here's how you can help:
 
@@ -141,11 +176,12 @@ We welcome contributions! Here's how you can help:
 - Clear description of the problem
 - Steps to reproduce
 - Expected vs actual behavior
+- System information (OS, Python version, browser)
 
 ### 💡 Suggest Features
 Have ideas? [Start a discussion](https://github.com/logan-code-del/empire-builder-game/discussions)!
 
-### 🔧 Development
+### 🔧 Development Setup
 ```bash
 # Fork and clone
 git clone https://github.com/logan-code-del/empire-builder-game.git
@@ -158,97 +194,177 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your configuration
+
 # Run tests
-python test_game.py
+python -m unittest discover tests
 
 # Start development server
 python app.py
 ```
 
+### 📋 Contribution Guidelines
+- **Small changes** (bug fixes, minor improvements): Submit pull requests directly
+- **Major changes** (>25% of codebase, core features): Request approval via GitHub Issues first
+- **Commercial modifications**: Require explicit written permission
+- **Attribution**: Must maintain all copyright notices and attribution
+
 ## 📚 Documentation
 
-- 📖 [Cities & Buildings Guide](CITIES_AND_BUILDINGS.md) - Complete building system guide
-- 🚀 [Deployment Guide](DEPLOYMENT.md) - Deploy to various platforms
-- 🌐 [Render Deploy Guide](RENDER_DEPLOY.md) - Detailed Render deployment
-- 🔧 [Troubleshooting](TROUBLESHOOTING.md) - Common issues and solutions
-- 🛠️ [Render Troubleshooting](RENDER_TROUBLESHOOTING.md) - Render-specific fixes
-- ❓ [Help System](HELP_SYSTEM.md) - In-game help documentation
+### 📖 Complete Documentation
+- **[Read the Docs](https://empire-builder.readthedocs.io/)** - Comprehensive documentation with:
+  - Installation and quickstart guide
+  - Game mechanics and features
+  - API reference and development guide
+  - Deployment instructions for all platforms
+  - Authentication and security details
+
+### 📋 Legal Documentation
+- **[Terms and Conditions](TERMS_AND_CONDITIONS.md)** - Complete legal terms
+- **[License Agreement](LICENSE)** - Custom license with usage rights
+- **[Copyright Notice](COPYRIGHT)** - Copyright and ownership information
+
+### 🛠️ Technical Guides
+- **[Cities & Buildings Guide](CITIES_AND_BUILDINGS.md)** - Complete building system
+- **[Deployment Guide](DEPLOYMENT.md)** - Deploy to various platforms
+- **[Render Deploy Guide](RENDER_DEPLOY.md)** - Detailed Render deployment
+- **[Troubleshooting](TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Help System](HELP_SYSTEM.md)** - In-game help documentation
 
 ## 🏆 Roadmap
 
 ### ✅ Completed Features
-- [x] Empire creation and management
-- [x] Real-time combat system
-- [x] Cities and buildings system
+- [x] Empire creation and management system
+- [x] Real-time combat with advanced calculations
+- [x] Cities and buildings system with production bonuses
 - [x] AI opponents with strategic behavior
-- [x] Resource management and production
-- [x] Interactive world map
-- [x] Mobile-responsive design
-- [x] Real-time multiplayer support
-- [x] User authentication system
-- [x] Alliance system
+- [x] Resource management and automatic production
+- [x] Interactive world map with real geography
+- [x] Mobile-responsive design for all devices
+- [x] Real-time multiplayer support via WebSockets
+- [x] Secure user authentication and registration
+- [x] Alliance system for diplomatic gameplay
+- [x] Comprehensive legal framework and terms
+- [x] Complete Sphinx documentation on Read the Docs
+- [x] Multiple deployment options (Render, Heroku, Docker)
+- [x] Supabase database integration
+- [x] Unit testing and quality assurance
 
 ### 🔄 In Development
-- [ ] Leaderboards and rankings
-- [ ] Tournament modes
+- [ ] Advanced leaderboards and global rankings
+- [ ] Tournament modes and competitive seasons
+- [ ] Enhanced AI difficulty levels
+- [ ] Performance optimizations
 
 ### 💭 Future Plans
-- [ ] Chat system for players
-- [ ] Email notifications
-- [ ] Advanced AI difficulty levels
-- [ ] Custom map editor
-- [ ] Achievement system
+- [ ] Real-time chat system for players
+- [ ] Email notifications for important events
+- [ ] Custom map editor for user-created worlds
+- [ ] Achievement system with rewards
 - [ ] Trade system between empires
+- [ ] Mobile app versions (iOS/Android)
+- [ ] Advanced analytics and statistics
 
 ## 📊 Project Stats
 
 - **Language**: Python 3.11+
-- **Framework**: Flask + Socket.IO
-- **Database**: SQLite (PostgreSQL ready)
-- **Frontend**: HTML5, CSS3, JavaScript
-- **Real-time**: WebSocket support
-- **Mobile**: Fully responsive
-- **Deployment**: Heroku, Railway, Render ready
+- **Framework**: Flask 2.2.5+ with Socket.IO 5.3.4+
+- **Database**: Supabase (PostgreSQL) with SQLite fallback
+- **Frontend**: HTML5, CSS3, JavaScript with Bootstrap
+- **Real-time**: WebSocket support via Socket.IO
+- **Mobile**: Fully responsive design
+- **Documentation**: Sphinx with Read the Docs hosting
+- **Testing**: Comprehensive unit test coverage
+- **Deployment**: Render, Heroku, Docker, and local development ready
+- **Legal**: Complete terms, conditions, and copyright protection
 
-## 📄 License
+## 📄 License and Legal
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+**⚠️ IMPORTANT: This project uses a custom license with specific terms and conditions.**
+
+- **License**: Custom License Agreement - see [LICENSE](LICENSE) file
+- **Terms**: Complete Terms and Conditions - see [TERMS_AND_CONDITIONS.md](TERMS_AND_CONDITIONS.md)
+- **Copyright**: Full copyright protection - see [COPYRIGHT](COPYRIGHT) file
+- **Attribution**: Required for all deployments and modifications
+- **Commercial Use**: Requires explicit written permission
+- **Violations**: Subject to severe legal penalties up to $100,000 per violation
+
+**By using this software, you agree to be legally bound by all terms and conditions.**
 
 ## 🙏 Acknowledgments
 
-- **Flask Team** - Amazing web framework
-- **Socket.IO** - Real-time communication
-- **OpenStreetMap** - World map data
-- **Font Awesome** - Beautiful icons
-- **Bootstrap** - Responsive UI components
-- **Classic Strategy Games** - Inspiration for game mechanics
+- **Flask Team** - Amazing web framework for Python
+- **Socket.IO** - Real-time bidirectional communication
+- **Supabase** - Modern database and authentication platform
+- **OpenStreetMap** - World map data and geographic information
+- **Font Awesome** - Beautiful icons and graphics
+- **Bootstrap** - Responsive UI components and styling
+- **Sphinx** - Documentation generation system
+- **Read the Docs** - Documentation hosting platform
+- **Classic Strategy Games** - Inspiration for game mechanics and design
 
 ## 💬 Community & Support
 
-- 🐛 [Report Issues](https://github.com/logan-code-del/empire-builder-game/issues)
-- 💡 [Feature Requests](https://github.com/logan-code-del/empire-builder-game/discussions)
-- 📧 [Contact Developer](mailto:development.doom.endnote612@passfwd.com)
-- ⭐ [Star this Project](https://github.com/logan-code-del/empire-builder-game)
+### 🔗 Official Links
+- 🎮 **[Play Online](https://empire-builder.onrender.com)** - Official game instance
+- 📖 **[Documentation](https://empire-builder.readthedocs.io/)** - Complete documentation
+- 🐛 **[Report Issues](https://github.com/logan-code-del/empire-builder-game/issues)** - Bug reports and technical issues
+- 💡 **[Feature Requests](https://github.com/logan-code-del/empire-builder-game/discussions)** - Ideas and suggestions
+- ⭐ **[Star this Project](https://github.com/logan-code-del/empire-builder-game)** - Show your support
+
+### 📧 Contact Information
+- **General Inquiries**: development.doom.endnote612@passfwd.com
+- **Legal Questions**: Submit via GitHub Issues with "Legal" tag
+- **Permission Requests**: Submit via GitHub Issues with detailed proposal
+- **Technical Support**: Use GitHub Issues for fastest response
+
+### 🏷️ Issue Templates
+When reporting issues, please use these tags:
+- `bug` - Software bugs and errors
+- `enhancement` - Feature requests and improvements
+- `legal` - Legal questions and permission requests
+- `documentation` - Documentation improvements
+- `deployment` - Deployment and setup issues
 
 ## ⭐ Support the Project
 
 If you enjoy Empire Builder, please:
-- ⭐ **Star** this repository
-- 🍴 **Fork** and contribute
-- 🐛 **Report** bugs and issues
-- 💡 **Suggest** new features
-- 📢 **Share** with friends
+- ⭐ **Star** this repository to show your support
+- 🍴 **Fork** and contribute (following our legal terms)
+- 🐛 **Report** bugs and issues via GitHub Issues
+- 💡 **Suggest** new features through discussions
+- 📢 **Share** with friends and fellow strategy game enthusiasts
+- 📖 **Read** and follow our comprehensive documentation
+
+**Remember**: All contributions and usage must comply with our [Terms and Conditions](TERMS_AND_CONDITIONS.md)
 
 ---
 
 <div align="center">
 
-**🌍 Ready to build your empire and conquer the world? 🏰**
+# 🌍 Ready to build your empire and conquer the world? 🏰
 
-### [🎮 Start Playing Now!](https://empire-builder.onrender.com)
+## [🎮 Start Playing Now!](https://empire-builder.onrender.com)
 
-*Build • Expand • Conquer • Dominate*
+### *Build • Expand • Conquer • Dominate*
 
-**Made with ❤️ for strategy game enthusiasts**
+**Created with ❤️ by Logan-code-del and Doom**  
+**For strategy game enthusiasts worldwide**
+
+---
+
+### 📋 Quick Links
+**[Play Game](https://empire-builder.onrender.com)** • **[Documentation](https://empire-builder.readthedocs.io/)** • **[GitHub](https://github.com/logan-code-del/empire-builder-game)** • **[Issues](https://github.com/logan-code-del/empire-builder-game/issues)**
+
+---
+
+**© 2024 Logan-code-del and Doom. All Rights Reserved.**  
+*This project is protected by comprehensive legal terms and conditions.*
+
+**Empire Builder Game - Originally created by Logan-code-del and Doom**  
+**GitHub**: https://github.com/logan-code-del/empire-builder-game  
+**Contact**: development.doom.endnote612@passfwd.com
 
 </div>
