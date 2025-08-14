@@ -10,8 +10,8 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 project = 'Empire Builder'
-copyright = '2024, Empire Builder Team'
-author = 'Empire Builder Team'
+copyright = '2024, Logan'
+author = 'Logan'
 release = '1.0.0'
 version = '1.0.0'
 

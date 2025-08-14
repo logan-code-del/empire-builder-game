@@ -74,7 +74,7 @@ Registration Process
        headers: {'Content-Type': 'application/json'},
        body: JSON.stringify({
            username: 'player123',
-           email: 'player@example.com',
+           email: 'player@empire-builder.com',
            password: 'securepassword',
            confirm_password: 'securepassword'
        })

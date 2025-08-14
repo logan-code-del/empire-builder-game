@@ -20,8 +20,8 @@ Step 1: Installation
 
    .. code-block:: bash
 
-      git clone https://github.com/your-username/strategic-pro.git
-      cd strategic-pro/empire
+      git clone https://github.com/logan-code-del/empire-builder-game.git
+      cd empire-builder-game
 
 2. **Install Dependencies**
 

@@ -9,7 +9,8 @@ setup(
     name="empire-builder",
     version="1.0.0",
     description="Empire Builder - Real-time multiplayer strategy game",
-    author="Empire Builder Team",
+    author="Doom",
+    author_email="development.doom.endnote612@passfwd.com",
     packages=find_packages(),
     install_requires=[
         "Flask>=2.2.5",

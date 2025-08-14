@@ -139,7 +139,7 @@ Step-by-Step Deployment
       SUPABASE_URL=https://your-project.supabase.co
       SUPABASE_ANON_KEY=your-anon-key
       SUPABASE_SERVICE_KEY=your-service-key
-      SECRET_KEY=your-secret-key
+      SECRET_KEY=your-production-secret-key-very-long-and-random
       DEBUG=False
 
 6. **Deploy**
@@ -224,7 +224,7 @@ Deployment Steps
       heroku login
 
       # Create app
-      heroku create empire-builder-your-name
+      heroku create empire-builder-yourname
 
 2. **Configure Buildpack**
 
@@ -248,14 +248,14 @@ Deployment Steps
       heroku config:set SUPABASE_URL=https://your-project.supabase.co
       heroku config:set SUPABASE_ANON_KEY=your-anon-key
       heroku config:set SUPABASE_SERVICE_KEY=your-service-key
-      heroku config:set SECRET_KEY=your-secret-key
+      heroku config:set SECRET_KEY=your-production-secret-key-very-long-and-random
 
 5. **Deploy**
 
    .. code-block:: bash
 
       # Add Heroku remote
-      heroku git:remote -a empire-builder-your-name
+      heroku git:remote -a empire-builder-yourname
 
       # Deploy
       git push heroku main
@@ -400,8 +400,8 @@ Server Setup (Ubuntu 20.04+)
 
       # Clone repository
       cd /opt/empire
-      git clone https://github.com/your-username/strategic-pro.git
-      cd strategic-pro/empire
+      git clone https://github.com/logan-code-del/empire-builder-game.git
+      cd empire-builder-game
 
       # Create virtual environment
       python3.11 -m venv venv
@@ -423,7 +423,7 @@ Create ``/etc/nginx/sites-available/empire-builder``:
 
    server {
        listen 80;
-       server_name your-domain.com;
+       server_name empire-builder.onrender.com;
 
        location / {
            proxy_pass http://127.0.0.1:5000;
@@ -484,7 +484,7 @@ SSL Certificate
 .. code-block:: bash
 
    # Get SSL certificate
-   sudo certbot --nginx -d your-domain.com
+   sudo certbot --nginx -d empire-builder.onrender.com
 
    # Auto-renewal (add to crontab)
    sudo crontab -e

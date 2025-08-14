@@ -28,8 +28,8 @@ Initial Setup
    .. code-block:: bash
 
       # Fork the repository on GitHub
-      git clone https://github.com/your-username/strategic-pro.git
-      cd strategic-pro/empire
+      git clone https://github.com/logan-code-del/empire-builder-game.git
+      cd empire-builder-game
 
 2. **Create Development Environment**
 

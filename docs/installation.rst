@@ -57,8 +57,8 @@ Method 1: Standard Installation
 
    .. code-block:: bash
 
-      git clone https://github.com/your-username/strategic-pro.git
-      cd strategic-pro/empire
+      git clone https://github.com/logan-code-del/empire-builder-game.git
+      cd empire-builder-game
 
 3. **Create Virtual Environment** (Recommended)
 
@@ -91,8 +91,8 @@ For developers who want to contribute:
 
    .. code-block:: bash
 
-      git clone https://github.com/your-username/strategic-pro.git
-      cd strategic-pro/empire
+      git clone https://github.com/logan-code-del/empire-builder-game.git
+      cd empire-builder-game
 
 3. **Set Up Development Environment**
 
@@ -209,7 +209,7 @@ Environment Configuration
       SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
       
       # Flask Configuration
-      SECRET_KEY=your-secret-key-here-make-it-long-and-random
+      SECRET_KEY=your-very-long-random-secret-key-here-change-this-in-production
       DEBUG=True
       PORT=5000
 
