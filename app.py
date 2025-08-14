@@ -11,11 +11,15 @@ import time
 import threading
 from dataclasses import asdict
 from datetime import timedelta
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv(override=True)
 
 # Import our models and game logic
-from models import GameDatabase, Empire, BattleSystem, UNIT_COSTS, UNIT_STATS, BUILDING_TYPES
+from models_supabase import supabase_db as GameDatabase, Empire, supabase_battle_system as BattleSystem, UNIT_COSTS, UNIT_STATS, BUILDING_TYPES
 from ai_system import ai_manager, create_ai_empires, initialize_ai_system
-from auth import auth_db, login_required, get_current_user, login_user, logout_user
+from auth_supabase import supabase_auth_db as auth_db, login_required, get_current_user, login_user, logout_user
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'empire-builder-secret-key-2024')
@@ -28,8 +32,9 @@ app.logger.setLevel(logging.INFO)
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Global game state
-db = GameDatabase()
+# Global game state with Supabase
+db = GameDatabase
+battle_system = BattleSystem
 active_battles = {}  # battle_id -> battle_data
 
 # Authentication Routes
@@ -491,32 +496,50 @@ def resource_generation_loop():
         try:
             empires = db.get_all_empires()
             for empire in empires:
-                old_resources = {
-                    'gold': empire.gold,
-                    'food': empire.food,
-                    'iron': empire.iron,
-                    'oil': empire.oil,
-                    'population': empire.population
-                }
+                # Store old resources for comparison (Supabase model uses resources dict)
+                old_resources = empire.resources.copy()
                 
-                # Generate resources
-                db.generate_resources(empire)
+                # Base resource generation based on land and population
+                generation_rate = empire.land / 1000
+                empire.resources['gold'] += int(10 * generation_rate)
+                empire.resources['food'] += int(15 * generation_rate)
+                empire.resources['iron'] += int(5 * generation_rate)
+                empire.resources['oil'] += int(3 * generation_rate)
+                
+                # Building production bonus (if method exists)
+                try:
+                    building_production = db.calculate_building_production(empire)
+                    for resource, amount in building_production.items():
+                        empire.resources[resource] += amount
+                except AttributeError:
+                    # Fallback: basic building production
+                    for building_type, count in empire.buildings.items():
+                        if building_type in BUILDING_TYPES and count > 0:
+                            production = BUILDING_TYPES[building_type].get('production', {})
+                            for resource, amount in production.items():
+                                empire.resources[resource] += amount * count
+                
+                # Population growth
+                growth_rate = 0.01
+                empire.resources['population'] += int(empire.resources['population'] * growth_rate)
+                
+                # Update empire in database
+                db.update_empire(empire)
                 
                 # Check if resources changed significantly
                 resource_changed = (
-                    abs(empire.gold - old_resources['gold']) > 10 or
-                    abs(empire.food - old_resources['food']) > 10 or
-                    abs(empire.iron - old_resources['iron']) > 5 or
-                    abs(empire.oil - old_resources['oil']) > 5 or
-                    abs(empire.population - old_resources['population']) > 5
+                    abs(empire.resources['gold'] - old_resources['gold']) > 10 or
+                    abs(empire.resources['food'] - old_resources['food']) > 10 or
+                    abs(empire.resources['iron'] - old_resources['iron']) > 5 or
+                    abs(empire.resources['oil'] - old_resources['oil']) > 5 or
+                    abs(empire.resources['population'] - old_resources['population']) > 5
                 )
                 
                 if resource_changed:
                     # Emit update to empire room
                     socketio.emit('empire_update', asdict(empire), room=f'empire_{empire.id}')
             
-            # AI actions
-            ai_manager.process_ai_actions(db)
+            # Note: AI actions are handled by the AI manager's own background thread
             
         except Exception as e:
             print(f"Error in resource generation: {e}")
